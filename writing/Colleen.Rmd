@@ -1,0 +1,11 @@
+---
+title: "Colleen"
+author: "Colleen Brents"
+date: "October 30, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+This is the Rmd for ggalluvial and a bonus 'exploratory' package for the group 2 project 
