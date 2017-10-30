@@ -4,3 +4,19 @@ author: "Marialexia Alfano"
 date: "October 30, 2017"
 output: html_document
 ---
+
+ggcorrplot & ggbeeswarm 
+
+ggbeeswarm [vignette](https://cran.r-project.org/web/packages/ggbeeswarm/vignettes/usageExamples.pdf)
+
+ggcorrplot [vignette](http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2) 
+
+
+
+
+
+
+
+
+
+
