@@ -11,12 +11,134 @@ ggbeeswarm [vignette](https://cran.r-project.org/web/packages/ggbeeswarm/vignett
 
 ggcorrplot [vignette](http://www.sthda.com/english/wiki/ggcorrplot-visualization-of-a-correlation-matrix-using-ggplot2) 
 
+#ggbeeswarm
+
+```{r}
+library(ggbeeswarm)
+set.seed(12345)
+n<-100
+dat<-rnorm(n*2)
+labs<-rep(c('a','b'),n)
+ggplot(mapping=aes(labs, dat)) + geom_quasirandom()
+```
+
+```{r}
+ggplot(mapping=aes(labs, dat)) + geom_quasirandom(aes(color=labs))
+```
 
 
+```{r}
+labs2<-factor(labs,levels=c('b','a'))
+ggplot(mapping=aes(labs2, dat)) + geom_quasirandom(aes(color=labs))
+```
 
 
+```{r}
+ggplot(mapping=aes(dat,labs)) + geom_quasirandom(aes(color=labs),groupOnX=FALSE)
+```
+
+```{r}
+labs2<-factor(rep(1:2,each=n))
+ggplot(mapping=aes(labs,dat,color=labs2)) + geom_quasirandom(dodge.width=.8)
+```
+
+```{r}
+labs2<-factor(rep(1:2,each=n))
+ggplot(mapping=aes(dat,labs,color=labs2)) + geom_quasirandom(dodge.width=.8,groupOnX=FALSE)
+```
+
+```{r}
+ggplot(mapping=aes(labs,dat,color=labs2))+
+geom_beeswarm(dodge.width=.8,cex=2)
+```
+
+```{r}
+ggplot(mapping=aes(dat,labs,color=labs2))+
+geom_beeswarm(dodge.width=.8,cex=2,groupOnX=FALSE)
+
+```
+
+```{r}
+ df<-data.frame(labs,dat,labs2)
+ggplot(df,aes(labs,dat,color=labs2))+
+geom_quasirandom()+
+facet_grid(.~labs2)
+
+```
+
+```{r}
+ggplot(df,aes(labs,dat,color=labs2))+
+geom_beeswarm(cex=3)+
+facet_grid(.~labs2)
+
+```
+
+#ggcorrplot
+
+```{r}
+library(ggcorrplot)
+data(mtcars)
+corr <- round(cor(mtcars), 1)
+head(corr[, 1:6])
+```
+
+```{r}
+p.mat <- cor_pmat(mtcars)
+head(p.mat[, 1:4])
+```
+
+```{r}
+ggcorrplot(corr)
+```
+
+```{r}
+ggcorrplot(corr, method = "circle")
+```
+
+####reordering the correlation matrix using heirarchical clustering
+```{r}
+ggcorrplot(corr, hc.order = TRUE, outline.col = "white")
+```
 
 
+####show lower triangle
+```{r}
+ggcorrplot(corr, hc.order = TRUE, type = "lower",
+     outline.col = "white")
+```
 
+####show upper triangle
+```{r}
+ggcorrplot(corr, hc.order = TRUE, type = "upper",
+     outline.col = "white")
+```
 
+####change colors 
+```{r}
+ggcorrplot(corr, hc.order = TRUE, type = "lower",
+   outline.col = "white",
+   ggtheme = ggplot2::theme_gray,
+   colors = c("#6D9EC1", "white", "#E46726"))
+```
+
+####add correlation coefficients in squares
+####argument is lab = TRUE
+```{r}
+ggcorrplot(corr, hc.order = TRUE, type = "lower",
+   lab = TRUE)
+```
+
+####Add correlation significance level
+####Argument p.mat
+####Barring the no significant coefficient
+```{r}
+ggcorrplot(corr, hc.order = TRUE,
+    type = "lower", p.mat = p.mat)
+```
+
+####Leave blank on no significant coefficient
+```{r}
+ggcorrplot(corr, p.mat = p.mat, hc.order = TRUE,
+    type = "lower", insig = "blank")
+```
 
