@@ -1,0 +1,21 @@
+---
+title: "Rebecca_Extensions"
+author: "rebecca"
+date: "November 1, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r ggmosaic}
+
+```
+
+
+
+```{r geom_tile}
+
+```
