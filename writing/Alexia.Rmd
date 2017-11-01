@@ -73,6 +73,31 @@ facet_grid(.~labs2)
 
 ```
 
+```{r}
+library(gridExtra)
+library(ggplot2)
+library(ggthemes)
+dat <- list('Normal'=rnorm(50),'Dense normal'= rnorm(500),'Bimodal'=c(rnorm(100), rnorm(100,5)),'Trimodal'=c(rnorm(100), rnorm(100,5),rnorm(100,-3)))
+
+labs<-rep(names(dat),sapply(dat,length))
+labs<-factor(labs,levels=unique(labs)) 
+dat<-unlist(dat)
+
+   p1<-ggplot(mapping=aes(labs, dat))+
+     geom_beeswarm(alpha=.2,size=.75)+
+     ggtitle('geom_beeswarm') + labs(x='')+
+     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+   
+grid.arrange(p1)
+```
+
+ 
+
+
+
+
+
+
 #ggcorrplot
 
 ```{r}
