@@ -1,0 +1,43 @@
+---
+title: "Colleen"
+author: "Colleen Brents"
+date: "October 30, 2017"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+This is the Rmd for ggalluvial and a bonus 'exploratory' package for the group 2 project 
+[link for ggplot extnesions](http://www.ggplot2-exts.org/) 
+[actual link](http://www.ggplot2-exts.org/gallery/)
+here is the link for ggalluvial [here](https://github.com/corybrunson/ggalluvial)
+here's a blog using other packages [here](https://www.r-bloggers.com/alluvial-diagrams/)
+
+```{r}
+devtools::install_github("corybrunson/ggalluvial", build_vignettes = TRUE)
+library(ggplot2)
+library(ggalluvial)
+```
+now that we've downloaded the packages and libraries, check out a vignette:
+
+```{r}
+vignette(topic = "ggalluvial")
+```
+sample data is Titanic 
+
+
+Other packages people in group2 are looking at 
+  + heirarchical clustering
+  + ggraph
+  + geomnet
+  + ggalluvial
+  + ggmosaic
+  + ggcorrplot
+  + 'geom_tile' --> heatmaps 
+  
+#if publish as html, opens the vignette
+#if publish as word, opens my comments 
+  + a bonus ggplot 
