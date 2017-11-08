@@ -31,11 +31,19 @@ test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_o
                              "master/CSV_Files/efficacy_summary.csv"))
 
 test_data_dend <- test_data %>% 
-  select(cLogP:MacUptake) %>% 
+  #unite(drug:level) %>% combine identifying data into one column, make matrix row name 
+  #filter by drug dosage and then by drug interval 
+  unite(drug:level)
+  select(PLA:MacUptake, -ELU, -ESP) %>%
+  mutate_all(funs(scale(.))) %>% 
+    #mutate_at can be used to scale certain columns (keep the unite identifities)
+  #set drug:level as matrix row names
+  #look at clustering across drugs or across measurements 
   as.matrix() %>% 
   t() %>% 
   dist() %>% 
   hclust() %>% 
+  #want to add labels (to nodes)
   as.dendrogram()
 
 ggraph(test_data_dend, layout = "dendrogram") + 
