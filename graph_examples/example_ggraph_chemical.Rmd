@@ -1,0 +1,44 @@
+---
+title: "Colleen_heirarchical"
+author: "Colleen Brents"
+date: "November 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#colleen's to do
++ help files for 'hclust'
+rplot 
+scale columns (subtract mean and divide by SD) before heirarchical clustering
++ look at scale function to get idea 
++ might want to use mutate_all to scale all columns before run `as.matrix` 
++ ggraph and geomnet 
++ principle components analysis (second)
++ alluvial (which variables could be treated categorical) (third)
+
+reference example_ggraph 
+#split by chemical and biological markers 
+*Colleen does chemical markers 
+
+```{r}
+library(readr)
+library(dplyr)
+library(ggraph)
+
+test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                             "master/CSV_Files/efficacy_summary.csv"))
+
+test_data_dend <- test_data %>% 
+  select(cLogP:MacUptake) %>% 
+  as.matrix() %>% 
+  t() %>% 
+  dist() %>% 
+  hclust() %>% 
+  as.dendrogram()
+
+ggraph(test_data_dend, layout = "dendrogram") + 
+  geom_edge_diagonal()
+```
+
