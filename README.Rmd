@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-###Biological Measurements 
+**Biological Measurements** 
+
 PLA – Plasma
 
 ULU – Uninvolved Lung
@@ -25,7 +26,8 @@ SLU – Standard Lung
 SLE – Standard Lesion
 
 
-###Chemical Measurements
+**Chemical Measurements**
+
 cLogP – octanol:water partition coefficient. This is the logarithm of the concentration of drug in octanol (oil) and water - it's a measure of lipohilicity/hydrophoicity of the drug.
 
 huPPB - human plasma protein binding. The fraction of drug concentration that binds to plasma proteins. (1 - huPPB) is then the free concentration of the drug. % bound.
