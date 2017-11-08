@@ -5,26 +5,23 @@ date: "October 25, 2017"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE, message = FALSE }
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+PLA – Plasma
+ULU – Uninvolved Lung
+RIM – Rim
+OCS – Outer caseum
+ICS – Inner caseum
+SLU – Standard Lung
+SLE – Standard Lesion
+cLogP – octanol:water partition coefficient. This is the logarithm of the concentration of drug in octanol (oil) and water - it's a measure of lipohilicity/hydrophoicity of the drug.
+huPPB - human plasma protein binding. The fraction of drug concentration that binds to plasma proteins. (1 - huPPB) is then the free concentration of the drug. % bound.
+muPPB - mouse plasma protein binding. % bound. 
+MIC_Erdman – minimum inhibitory concentration Erdman strain. This is the minimum drug concentration that inhibits the growth of the bacteria. In this case the Erdman strain of Mycobacterium tuberculosis.
+MICserumErd – 
+MIC_Rv – MIC for H37Rv strain of M. tuberculosis.
+Caseum_binding – fraction of drug concentration that is bound to the constituents of the caseum (caseum is at the center of the necrotic granuloma) (% unbound)
+MacUptake – rate of uptake of drug molecules by macrophages. (I/E concentration ratio)
+MacUptake is unitless (I / E concentration ratio)--this could refer to concentrations inside and outside the macrophage I intracellular / E extracellular. The time at which the measurement is taken is probably a standard one.
