@@ -1,0 +1,65 @@
+---
+title: "Colleen_heirarchical"
+author: "Colleen Brents"
+date: "November 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#colleen's to do
++ help files for 'hclust'
+[hclust](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/hclust.html)
+rplot (alluvial diagrams stuff)
+scale columns (subtract mean and divide by SD) before heirarchical clustering
++ look at scale function to get idea 
++ might want to use mutate_all to scale all columns before run `as.matrix` 
++ ggraph and geomnet 
+[ggraph](https://cran.r-project.org/web/packages/ggraph/index.html) 
+check out vingettes for edges,  layouts, nodes 
++ principle components analysis (second)
++ alluvial (which variables could be treated categorical) (third)
+
+reference example_ggraph 
+#split by chemical and biological markers 
+*Colleen does chemical markers 
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggraph)
+library(tibble)
+
+test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                             "master/CSV_Files/efficacy_summary.csv"))
+
+test_data_dend <- test_data %>% 
+  unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  remove_rownames %>% 
+  column_to_rownames (var = "drugz") %>%  #make drugz row name 
+  select(PLA:MacUptake, -ELU, -ESP) %>%
+  mutate_each_(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "cLogP", "huPPB","muPPB",
+               "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) 
+#mutate_at(funs(scale(.) %>% as.vector), vars)   #mutate_at can be used to scale certain columns (keep the unite identifities)
+
+test_data_matrix<- test_data_dend %>% 
+  as.matrix() %>%  #make matrix 
+   #filter by drug dosage and then by drug interval 
+   t() %>%  #transpose function 
+  dist() %>% 
+  hclust() %>% 
+  #want to add labels (to nodes)
+  as.dendrogram()
+  
+  #set drug:level as matrix row names
+  #look at clustering across drugs or across measurements 
+  #colleen is doing across drugs
+
+
+ggraph(test_data_matrix, layout = "dendrogram") + 
+  geom_edge_diagonal()
+```
+
