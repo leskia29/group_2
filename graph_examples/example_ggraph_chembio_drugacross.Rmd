@@ -41,25 +41,31 @@ test_data_dend <- test_data %>%
   column_to_rownames (var = "drugz") %>%  #make drugz row name 
   select(PLA:MacUptake, -ELU, -ESP) %>%
   mutate_each_(funs(scale(.) %>% as.vector),
-               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "cLogP", "huPPB","muPPB",
-               "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) 
-#mutate_at(funs(scale(.) %>% as.vector), vars)   #mutate_at can be used to scale certain columns (keep the unite identifities)
-
-test_data_matrix<- test_data_dend %>% 
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+               "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
+  #don't need to filter out is.na 
+  #mutate_at(funs(scale(.) %>% as.vector), vars)   #mutate_at can be used to scale certain columns (keep the unite identifities)
+#test_data_matrix<- test_data_dend %>% 
   as.matrix() %>%  #make matrix 
    #filter by drug dosage and then by drug interval 
    t() %>%  #transpose function 
   dist() %>% 
   hclust() %>% 
+  as.dendrogram(horiz = TRUE, hang = .3)
   #want to add labels (to nodes)
-  as.dendrogram()
-  
-  #set drug:level as matrix row names
+  #as.dendrogram()
   #look at clustering across drugs or across measurements 
   #colleen is doing across drugs
+plot(test_data_dend,
+     xlab = "",
+     ylab = "",
+     main = "Across Drugz Example",
+     horiz = TRUE)
 
-
-ggraph(test_data_matrix, layout = "dendrogram") + 
-  geom_edge_diagonal()
+ggraph(test_data_dend, layout = "dendrogram") + 
+  geom_edge_diagonal() +
+  facet_edges(labeller = "label_value")
+#scale it 
+#add labels 
 ```
 
