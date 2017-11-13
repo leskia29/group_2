@@ -19,6 +19,5 @@ test_data_dend <- test_data %>%
 plot(test_data_dend,
      xlab = "",
      ylab = "",
-     main = "Cluster Example",
+     main = "Cluster by Measurements",
      horiz = TRUE)
-
