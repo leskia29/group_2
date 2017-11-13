@@ -28,7 +28,7 @@ test_plot <- bio_sample_test %>%
   ggplot(aes(dosage, PLA, color = drug))+
   geom_beeswarm(alpha=.5,size=1.5)+
   scale_x_continuous(breaks=c(50,100))+
-  ggtitle('geom_beeswarm') + labs(x='Dose')+
+  ggtitle('Variable = PLA') + labs(x='Dose')+
   theme_few()
 
 test_plot
@@ -46,6 +46,7 @@ bio_sample_SMplot <- bio_sample_forSM %>%
   geom_beeswarm(alpha = 0.5, size = 1.5)+
   scale_x_continuous(breaks = c(50,100))+
   labs(x = 'Dose', y = 'Value')+
+  ggtitle('Biological Measurements of TB Drugs')+
   theme_few()+
   facet_wrap(~ variable, ncol = 4)
 
@@ -65,7 +66,7 @@ test_plot_2 <- chem_sample_test %>%
   ggplot(aes(dosage, cLogP, color = drug))+
   geom_beeswarm(alpha=.5,size=1.5)+
   scale_x_continuous(breaks=c(50,100))+
-  ggtitle('geom_beeswarm') + labs(x='Dose')+
+  ggtitle('Variable = cLogP') + labs(x='Dose')+
   theme_few()
 
 test_plot_2
@@ -82,6 +83,7 @@ chem_sample_SMplot <- chem_sample_forSM %>%
   geom_beeswarm(alpha = 0.5, size = 1.5)+
   scale_x_continuous(breaks = c(50,100))+
   labs(x = 'Dose', y = 'Value')+
+  ggtitle('Chemical Measurements of TB Drugs')+
   theme_few()+
   facet_wrap(~ variable, ncol = 4, scale="free")
 
