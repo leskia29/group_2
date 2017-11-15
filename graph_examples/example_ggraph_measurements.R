@@ -20,4 +20,8 @@ plot(test_data_dend,
      xlab = "",
      ylab = "",
      main = "Cluster by Measurements",
-     horiz = TRUE)
+     horiz = TRUE,
+     axes = FALSE)
+par(cex = .6, mar=c(9, 11, 7, 7))
+par(cex = 0.6)
+
