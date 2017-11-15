@@ -24,48 +24,78 @@ check out vingettes for edges,  layouts, nodes
 reference example_ggraph 
 #split by chemical and biological markers 
 *Colleen does chemical markers 
+[tutorial](http://www.sthda.com/english/articles/28-hierarchical-clustering-essentials/92-visualizing-dendrograms-ultimate-guide/)
 
 ```{r}
 library(readr)
 library(dplyr)
-library(tidyr)
+library(tidyr) #unite
 library(ggraph)
 library(tibble)
+library(dendextend)
+```
 
+```{r}
 test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
 
 test_data_dend <- test_data %>% 
-  unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
   remove_rownames %>% 
   column_to_rownames (var = "drugz") %>%  #make drugz row name 
   select(PLA:MacUptake, -ELU, -ESP) %>%
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
                "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
-  #don't need to filter out is.na 
-  #mutate_at(funs(scale(.) %>% as.vector), vars)   #mutate_at can be used to scale certain columns (keep the unite identifities)
-#test_data_matrix<- test_data_dend %>% 
-  as.matrix() %>%  #make matrix 
-   #filter by drug dosage and then by drug interval 
-   t() %>%  #transpose function 
+  as.matrix() %>% 
+  t() %>% 
   dist() %>% 
   hclust() %>% 
-  as.dendrogram(horiz = TRUE, hang = .3)
-  #want to add labels (to nodes)
-  #as.dendrogram()
-  #look at clustering across drugs or across measurements 
-  #colleen is doing across drugs
-plot(test_data_dend,
+  as.dendrogram(horiz = TRUE, hang = .1)
+
+plot (test_data_dend,
      xlab = "",
      ylab = "",
-     main = "Across Drugz Example",
-     horiz = TRUE)
+     main = "Across Drugz Measurements",
+     horiz = TRUE,
+     axes = FALSE)
+     
+par(cex = 0.6, mar=c(9,11,7,7)) #cex magnifies text; mar does axis 
+par(cex = 0.6)
 
-ggraph(test_data_dend, layout = "dendrogram") + 
-  geom_edge_diagonal() +
-  facet_edges(labeller = "label_value")
-#scale it 
-#add labels 
+#color for chemical vs biological 
+```
+
+```{r}
+test_data_dend_drug <- test_data %>% 
+  tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  remove_rownames %>% 
+  column_to_rownames (var = "drugz") %>%  #make drugz row name 
+  select(PLA:MacUptake, -ELU, -ESP) %>%
+  #keep column names
+  #pull out drug names and save as vector 
+  
+  mutate_each_(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+               "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
+  mutate_each_(funs(scale(.)),
+               vars ("PLA":"MacUptake"))  <- works like select 
+  as.matrix() %>% 
+  dist() %>% 
+  hclust() %>% 
+  as.dendrogram(horiz = TRUE, hang = .1)
+
+plot (test_data_dend_drug,
+     xlab = "",
+     ylab = "",
+     main = "Across Drugz Measurements",
+     horiz = TRUE,
+     axes = FALSE)
+     
+par(cex = 0.6, mar=c(9,11,7,7)) #cex magnifies text; mar does axis 
+par(cex = 0.6)
+
+#make labels names as a vector, add back later 
+#go step by step ; col names of matrix = 
 ```
 
