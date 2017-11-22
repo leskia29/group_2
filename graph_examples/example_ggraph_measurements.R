@@ -2,6 +2,8 @@ library(readr)
 library(dplyr)
 library(ggraph)
 library(dendextend)
+library(factoextra)
+install.packages("factoextra")
 
 test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
@@ -16,7 +18,8 @@ test_data_dend <- test_data %>%
   as.dendrogram(horiz = TRUE, hang = .3)
 
 
-plot(test_data_dend,
+plot(test_data_dend, k = 4,
+     k_colors = "jco",
      xlab = "",
      ylab = "",
      main = "Cluster by Measurements",
