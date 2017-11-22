@@ -3,6 +3,7 @@ library(dplyr)
 library(ggraph)
 library(dendextend)
 library(factoextra)
+library(ggthemes)
 
 
 test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
@@ -18,6 +19,7 @@ test_data_dend <- test_data %>%
   as.dendrogram(horiz = TRUE, hang = .3)
 
 
+##cluster shown in colors
 
 fviz_dend(test_data_dend, k = 6, # Cut in four groups
           cex = 0.5,
@@ -25,11 +27,13 @@ fviz_dend(test_data_dend, k = 6, # Cut in four groups
           ylab = "",
           main = "Cluster by Measurements",
           horiz = TRUE,
-          axes = FALSE,
           k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
                        "#18E154"),
-          color_labels_by_k = TRUE, # color labels by groups
+          color_labels_by_k = FALSE, # color labels by groups
           rect = TRUE, # Add rectangle around groups
           rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
                           "#18E154"),
           rect_fill = TRUE)
+
+
+fviz_den
