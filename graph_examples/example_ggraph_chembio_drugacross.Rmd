@@ -36,6 +36,37 @@ library(dendextend)
 ```
 
 ```{r}
+# test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+#                              "master/CSV_Files/efficacy_summary.csv"))
+# 
+# test_data_dend <- test_data %>% 
+#   tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
+#   remove_rownames %>% 
+#   column_to_rownames (var = "drugz") %>%  #make drugz row name 
+#   select(PLA:MacUptake, -ELU, -ESP) %>%
+#   mutate_each_(funs(scale(.) %>% as.vector),
+#                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+#                "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
+#   as.matrix() %>% 
+#   t() %>% 
+#   dist() %>% 
+#   hclust() %>% 
+#   as.dendrogram(horiz = TRUE, hang = .1)
+# 
+# plot (test_data_dend,
+#      xlab = "",
+#      ylab = "",
+#      main = "Across Drugz Measurements",
+#      horiz = TRUE,
+#      axes = FALSE)
+#      
+# par(cex = 0.6, mar=c(9,11,7,7)) #cex magnifies text; mar does axis 
+# par(cex = 0.6)
+# 
+# #color for chemical vs biological 
+```
+
+```{r add colors}
 test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
 
@@ -46,25 +77,65 @@ test_data_dend <- test_data %>%
   select(PLA:MacUptake, -ELU, -ESP) %>%
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
-               "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
+               "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
   as.matrix() %>% 
   t() %>% 
   dist() %>% 
   hclust() %>% 
-  as.dendrogram(horiz = TRUE, hang = .1)
-
-plot (test_data_dend,
-     xlab = "",
+  as.dendrogram(horiz = TRUE, hang = .1) %>% 
+  #add mackenzie's
+  #plot.dendorgram help file 
+  plot(xlab = "",
      ylab = "",
-     main = "Across Drugz Measurements",
+     main = "Across Drug Measurements",
      horiz = TRUE,
-     axes = FALSE)
-     
-par(cex = 0.6, mar=c(9,11,7,7)) #cex magnifies text; mar does axis 
-par(cex = 0.6)
+     axes = FALSE) %>% 
+  set("labels")
+  set("labels", c(111:115)) %>%    # change labels
+   set("labels_col", c(1,2,3)) %>%  # change color 
+  par(cex = 0.6, mar=c(9,11,7,7)) %>% #cex magnifies text; mar does axis
+  par(cex = 0.6)
+#add column 
+invivo_bio<- c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake") 
+invitro_chem<- c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE")
 
-#color for chemical vs biological 
+#color for chemical vs biological indepdent of the cluster; different grouping 
 ```
+
+```{r}
+dend15 <- c(1:5) %>% dist %>% hclust(method = "average") %>% as.dendrogram
+dend15 %>% set("labels_to_char") %>% labels
+
+dend15_2 <- dend15 %>% 
+   set("labels", c(111:115)) %>%    # change labels
+   set("labels_col", c(1,2,3)) %>%  # change color 
+   set("labels_cex", c(2,1))
+par(mfrow = c(1,2))
+dend15 %>% plot(main = "Before")
+dend15_2 %>% plot(main = "After")
+```
+
+the above graph visualizes how similar test results are across all drug-level-trt combinations 
+
+resource for color coding leaves [here](https://stackoverflow.com/questions/31117849/how-to-color-a-dendrograms-labels-according-to-defined-groups-in-r)
+learn about extendogram [here](https://cran.r-project.org/web/packages/dendextend/vignettes/introduction.html)
+also [here](https://rpubs.com/gaston/dendrograms) 
+```{r data from R for colors}
+fviz_dend(test_data_dend, k = 6, # Cut in four groups
+          cex = 0.5,
+          xlab = "",
+          ylab = "",
+          main = "Cluster by Measurements",
+          horiz = TRUE,
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
+                       "#18E154"),
+          color_labels_by_k = FALSE, # color labels by groups
+          rect = TRUE, # Add rectangle around groups
+          rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
+                          "#18E154"),
+          rect_fill = TRUE)
+```
+
 
 ```{r}
 test_data_dend_drug <- test_data %>% 
@@ -79,7 +150,7 @@ test_data_dend_drug <- test_data %>%
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
                "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
   mutate_each_(funs(scale(.)),
-               vars ("PLA":"MacUptake"))  <- works like select 
+               vars ("PLA":"MacUptake"))  #<- works like select 
   as.matrix() %>% 
   dist() %>% 
   hclust() %>% 
