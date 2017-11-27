@@ -20,20 +20,21 @@ test_data_dend <- test_data %>%
 
 
 ##cluster shown in colors
-
-fviz_dend(test_data_dend, k = 6, # Cut in four groups
+measurements <- fviz_dend(test_data_dend, k = 6, # Cut in four groups
           cex = 0.5,
           xlab = "",
           ylab = "",
           main = "Cluster by Measurements",
           horiz = TRUE,
-          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
+            k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
                        "#18E154"),
           color_labels_by_k = FALSE, # color labels by groups
           rect = TRUE, # Add rectangle around groups
           rect_border = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#F09428",
                           "#18E154"),
-          rect_fill = TRUE)
+          rect_fill = TRUE)+
+          theme_void()
 
 
-fviz_den
+
+
