@@ -1,16 +1,16 @@
-Bio_or_Chem,Name,Definition
-bio,PLA,amount of drug found in plasma
-bio,ULU,amount of drug found in uninvolved lung
-bio,RIM,amount of drug found in Rim
-bio,OCS,amount of drug found in outer caseum
-bio,ICS,amount of drug found in inner caseum
-bio,SLU,amount of drug found in standard lung
-bio,SLE,amount of drug found in standard lesion
-chem,cLogP,octanol:water partition coefficient. This is the logarithm of the concentration of drug in octanol (oil) and water - it's a measure of lipohilicity/hydrophoicity of the drug.
-chem,huPPB,human plasma protein binding. The fraction of drug concentration that binds to plasma proteins. (1 - huPPB) is then the free concentration of the drug. % bound.
-chem,muPPB,mouse plasma protein binding. % bound. 
-chem,MIC_Erdman,minimum inhibitory concentration Erdman strain. This is the minimum drug concentration that inhibits the growth of the bacteria. In this case the Erdman strain of Mycobacterium tuberculosis.
-chem,MICserumErd,
-chem,MIC_Rv,MIC for H37Rv strain of M. tuberculosis.
-chem,Caseum binding ,fraction of drug concentration that is bound to the constituents of the caseum (caseum is at the center of the necrotic granuloma) (% unbound)
-chem,MacUptake ,rate of uptake of drug molecules by macrophages. (I/E concentration ratio). MacUptake is unitless (I / E concentration ratio)--this could refer to concentrations inside and outside the macrophage I intracellular / E extracellular. The time at which the measurement is taken is probably a standard one.
+Vitro_or_Vivo,Name,Definition
+vivo,PLA,amount of drug found in plasma
+vivo,ULU,amount of drug found in uninvolved lung
+vivo,RIM,amount of drug found in Rim (of lesion) 
+vivo,OCS,amount of drug found in outer caseum
+vivo,ICS,amount of drug found in inner caseum
+vivo,SLU,amount of drug found in standard lung
+vivo,SLE,amount of drug found in standard lesion
+vitro,cLogP,octanol:water partition coefficient. This is the logarithm of the concentration of drug in octanol (oil) and water - it's a measure of lipohilicity/hydrophoicity of the drug.
+vitro,huPPB,"The fraction of drug concentration that binds to human plasma proteins, (1 - huPPB) is then the free concentration of the drug. "
+vitro,muPPB,"the fraction of drug concentration that binds to mouse plasma proteins, (1-muPPB) is then the free concentration of the drug. "
+vitro,MIC_Erdman,"Minimum Inhibitory Concentration of Erdman strain. This is the minimum drug concentration that inhibits the growth of the bacteria, in this case the Erdman strain of Mycobacterium tuberculosis. "
+vitro,MICserumErd,"Minimum Inhibitory Concentration of Erdman Strain WITH serum added (serum added demonstrates a more similar to the environment the drug acts in, in-vivo). "
+vitro,MIC_Rv,MIC for H37Rv strain of M. tuberculosis.
+vitro,Caseum binding ,fraction of drug concentration that is bound to the constituents of the caseum (caseum is at the center of the necrotic granuloma) (% unbound)
+vitro,MacUptake ,rate of uptake of drug molecules by macrophages. (I/E concentration ratio). MacUptake is unitless (I / E concentration ratio)--this could refer to concentrations inside and outside the macrophage I intracellular / E extracellular. The time at which the measurement is taken is probably a standard one.
