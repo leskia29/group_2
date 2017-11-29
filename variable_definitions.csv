@@ -4,8 +4,8 @@ vivo,ULU,Uninvolved Lung,amount of drug found in uninvolved lung (part of the lu
 vivo,RIM,Rim (of Lesion),amount of drug found in Rim (of lesion) 
 vivo,OCS,Outer Caseum ,amount of drug found in outer caseum
 vivo,ICS,Inner Caseum,amount of drug found in inner caseum
-vivo,SLU,Standard Lung,amount of drug found in standard lung
-vivo,SLE,Standard Lesion,amount of drug found in standard lesion
+vivo,SLU,Standard Lung,amount of drug found in standard lung EXCLUDING THE LESION
+vivo,SLE,Standard Lesion,"amount of drug found in standard lesion (JUST THE LESION, NO LUNG)"
 vitro,cLogP,In-Vitro Lipophilic Binding,octanol:water partition coefficient. This is the logarithm of the concentration of drug in octanol (oil) and water - it's a measure of lipohilicity/hydrophoicity of the drug.
 vitro,huPPB,Human Plasma Binding,"The fraction of drug concentration that binds to human plasma proteins, (1 - huPPB) is then the free concentration of the drug. "
 vitro,muPPB,Mouse Plasma Binding,"the fraction of drug concentration that binds to mouse plasma proteins, (1 - muPPB) is then the free concentration of the drug. "
