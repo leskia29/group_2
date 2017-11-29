@@ -35,7 +35,11 @@ test_plot
 
 #gather for small multiples in-vivo markers
 vivo_sample_forSM <- vivo_sample_test %>% 
-  gather(key = variable, value = value, -drug, -dosage)
+  gather(key = variable, value = value, -drug, -dosage) %>% 
+  mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
+                           labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung",
+                                      "Standard Lung", "Standard Lesion", "Plasma")))
+
 
 head(vivo_sample_forSM)
 
@@ -51,8 +55,6 @@ vivo_sample_SMplot <- vivo_sample_forSM %>%
   facet_wrap(~ variable, ncol = 4)
 
 vivo_sample_SMplot
-
-function()
 
 #####################################################################
 
@@ -77,7 +79,7 @@ test_plot_2
 vitro_sample_forSM <- vitro_sample_test %>% 
   gather(key = variable, value = value, -drug, -dosage) %>% 
   mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"),
-                           labels = c("Ex-Vivo \nCaseum \nBinding", "In-Vitro \nLipophilic \nBinding", 
+                           labels = c("Caseum \nBinding", "In-Vitro \nLipophilic \nBinding", 
                                       "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
                                       "MIC Erdman \nStrain", "MIC Erdman \nStrain \nwith Serum", "MIC Rv Strain",
                                       "Macrophage \nUptake (Ratio)"))) 
