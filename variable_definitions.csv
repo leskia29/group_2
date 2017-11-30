@@ -12,5 +12,5 @@ vitro,muPPB,Mouse Plasma Binding,"the fraction of drug concentration that binds 
 vitro,MIC_Erdman,MIC Erdman Strain,"Minimum Inhibitory Concentration of Erdman strain. This is the minimum drug concentration that inhibits the growth of the bacteria, in this case the Erdman strain of Mycobacterium tuberculosis. "
 vitro,MICserumErd,MIC Erdman Strain with Serum,"Minimum Inhibitory Concentration of Erdman Strain WITH serum added (serum added demonstrates a more similar to the environment the drug acts in, in-vivo). "
 vitro,MIC_Rv,MIC Rv Strain,MIC for H37Rv strain of M. tuberculosis.
-vitro,Caseum binding ,Ex-Vivo Caseum Binding ,fraction of drug concentration that is bound to the constituents of the caseum (caseum is at the center of the necrotic granuloma) (% unbound)
+vitro,Caseum binding ,Caseum Binding ,fraction of drug concentration that is bound to the constituents of the caseum (caseum is at the center of the necrotic granuloma) (% unbound)
 vitro,MacUptake ,Macrophage Uptake (Ratio) ,rate of uptake of drug molecules by macrophages. (I/E concentration ratio). MacUptake is unitless (I / E concentration ratio)--this could refer to concentrations inside and outside the macrophage I intracellular / E extracellular. The time at which the measurement is taken is probably a standard one.
