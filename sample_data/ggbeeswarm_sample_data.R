@@ -7,7 +7,6 @@ library(ggbeeswarm)
 library(ggthemes)
 library(tidyr)
 library(scales)
-library(tidyr)
 library(crosstalk)
 library(d3scatter)
 
