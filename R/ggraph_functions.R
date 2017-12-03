@@ -9,7 +9,7 @@ library(tibble)
 library(dendextend)
 
 ##############################by measurement###############################################
-#superfxn <- function(category, variables =c("measurement", "drug"))
+#superfxn <- function(category, variables =c("measurement"))
 superfxn <- function(category) {
    #1. read data in
    category<- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
@@ -49,6 +49,7 @@ superfxn <- function(category) {
      mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
                         "MIC_Erdman", "MICserumErd", "Caseum_binding", "MacUptake")) %>% 
+    ###add labels to name full names?
       as.matrix() %>% 
     t() %>% 
     dist() %>% 

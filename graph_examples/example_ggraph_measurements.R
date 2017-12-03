@@ -18,9 +18,8 @@ test_data_dend <- test_data %>%
   hclust() %>% 
   as.dendrogram(horiz = TRUE, hang = .3)
 
-
 ##cluster shown in colors
-measurements <- fviz_dend(test_data_dend, k = 6, # Cut in four groups
+fviz_dend(test_data_dend, k = 6, # Cut in four groups
           cex = 0.5,
           xlab = "",
           ylab = "",
