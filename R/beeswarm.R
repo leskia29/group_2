@@ -44,7 +44,7 @@ in_vivo_SMplot <- in_vivo_SM %>%
   ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
   geom_beeswarm(alpha = 0.5, size = 1.5)+
   scale_y_log10()+
-  labs(x = 'Dose', y = 'Value')+
+  labs(x = 'Dosage-Interval', y = 'Value')+
   ggtitle('In-Vivo Distribution of TB Drugs')+
   theme_few()+
   facet_wrap(~ variable, ncol = 4)
