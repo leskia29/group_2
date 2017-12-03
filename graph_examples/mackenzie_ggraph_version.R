@@ -32,7 +32,10 @@ test_data_dend <- test_data %>%
          outer_caseum = OCS,
          inner_caseum = ICS,
          standard_lung = SLU,
-         standard_lung_lesion = SLE) %>% 
+         standard_lesion = SLE,
+         macrophage_uptake = MacUptake,
+         human_binding_plasma =huPPB,
+         mouse_binding_plasma = muPPB) %>% 
         
   as.matrix() %>% 
   t() %>% #transpose 
@@ -44,6 +47,6 @@ test_data_dend <- test_data %>%
        main = "Across Drug Measurements",
        horiz = TRUE,
        axes = FALSE)
-par(cex = 0.5, mar=c(10,12,9,9)) %>% #cex magnifies text; mar does axis
+par(cex = 0.5, mar=c(10,12,10,10)) %>% #cex magnifies text; mar does axis
   par(cex = 0.6)
 
