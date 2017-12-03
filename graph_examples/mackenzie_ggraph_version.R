@@ -5,9 +5,6 @@ library(ggraph)
 library(tibble)
 library(dendextend)
 
-
-
-
 # RIM = rim
 # OCS - outer caeseum
 # ICS -inner caseesum
@@ -29,11 +26,14 @@ test_data_dend <- test_data %>%
   select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
-                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake",
-                        labels = "Plasma", "Uninvolved Lung", "Rim of Lung", 
-                        "Outer Caseum", "Inner Caseum", "Standard Lung", "Standard Lung Lesion",
-                        "CLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumERD", "MIC_RV",
-                        "Caseum Binding", "Mac Uptake")) %>% 
+                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>%
+  rename(plasma = PLA,
+         uninvolved_lung = ULU,
+         outer_caseum = OCS,
+         inner_caseum = ICS,
+         standard_lung = SLU,
+         standard_lung_lesion = SLE) %>% 
+        
   as.matrix() %>% 
   t() %>% #transpose 
   dist() %>% 
@@ -44,6 +44,6 @@ test_data_dend <- test_data %>%
        main = "Across Drug Measurements",
        horiz = TRUE,
        axes = FALSE)
-par(cex = 0.6, mar=c(9,11,7,7)) %>% #cex magnifies text; mar does axis
+par(cex = 0.5, mar=c(10,12,9,9)) %>% #cex magnifies text; mar does axis
   par(cex = 0.6)
 
