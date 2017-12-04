@@ -6,7 +6,8 @@ efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_out
 #IMPORTANT NOTES:
 
 #OPTIONS FOR VARIABLES STATEMENT
-
+#"Caseum_binding", "cLogP", "huPPB", "muPPB",
+#"MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"
 
 #OPTIONS FOR DRUGS STATEMENT
 #"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
@@ -28,7 +29,8 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs 
   in_vitro_SM <- in_vitro %>% 
     gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
     mutate(variable_filtered = variable) %>% 
-    mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"),
+    mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman",
+                                                  "MICserumErd", "MIC_Rv", "MacUptake"),
                              labels = c("Caseum \nBinding", "cLogP", 
                                         "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
                                         "MIC Erdman \nStrain", "MIC Erdman \nStrain \nwith Serum", "MIC Rv Strain",
@@ -62,5 +64,5 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs 
 invitro_beeswarm_function(efficacy_summary)
 
 #example selection 
-invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "huPPB"), drugs = c("DRUG1", "DRUG2","DRUG3"))
+invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_binding"), drugs = c("DRUG1", "DRUG5"))
 
