@@ -57,12 +57,15 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs 
     theme_few()+
     facet_wrap(~ variable, ncol = 4, scale="free")
   
-  return(in_vitro_SMplot)
+  ggplotly(in_vitro_SMplot)
+  
+  return(ggplotly(in_vitro_SMplot))
   
 }
 
 invitro_beeswarm_function(efficacy_summary)
 
 #example selection 
-invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_binding"), drugs = c("DRUG1", "DRUG5"))
+invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_binding"),
+                          drugs = c("DRUG1", "DRUG5"))
 
