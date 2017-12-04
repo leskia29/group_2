@@ -1,9 +1,25 @@
 #invivo function
 
-invivo_beeswarm_function <- function(efficacy_summary, variables = c(), drugs = c()) {
+efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                                    "master/CSV_Files/efficacy_summary.csv")
+#IMPORTANT NOTES:
+
+#OPTIONS FOR VARIABLES STATEMENT
+#"Rim (of lesion)", "Outer Caseum", "Inner Caseum",
+#"Uninvolved Lung", "Standard Lung", "Standard Lesion", "Plasma"
+
+#OPTIONS FOR DRUGS STATEMENT
+#"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
+#"DRUG7", "DRUG8", "DRUG9", "DRUG8", "DRUG9", "DRUG10", DRUG11"
+
+#if default is NULL (i.e. no input for variabels and drugs statements) 
+#then it will plot ALL variables and drugs! 
+
+
+invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs = NULL) {
   
-  efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
-                                      "master/CSV_Files/efficacy_summary.csv"))
+  efficacy_summary <- read_csv(efficacy_summary) 
+  
   in_vivo <- efficacy_summary %>%
     select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
     rename(Drugs = "drug") %>% 
@@ -16,11 +32,15 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = c(), drugs = 
                                         "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
     mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD")))
   
-  invivo_variable_filtered <- in_vivo_SM %>% 
-    dplyr::filter(variable %in% variables)
+  if(!is.null(variables)) {
+    in_vivo_SM <- in_vivo_SM %>% 
+      dplyr::filter(variable %in% variables)
+  }
   
-  invivo_drug_filtered <- in_vivo_SM %>% 
-    dplyr::filter(Drugs %in% drugs)
+  if(!is.null(drugs)) {
+    in_vivo_SM <- in_vivo_SM %>%
+      dplyr::filter(Drugs %in% drugs)
+  }
   
   in_vivo_SMplot <- in_vivo_SM %>% 
     ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
@@ -35,11 +55,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = c(), drugs = 
   
 }
 
-invivo_function(efficacy_summary, variables = c("Rim (of lesion)"), drugs = ("DRUG1"))
+invivo_beeswarm_function(efficacy_summary, variables = c("Rim (of lesion)","Outer Caseum"), drugs = ("DRUG1"))
 
-invivo_beeswarm_function()
-
-#figure out why it's not selecting 
-#should I source the csv in the function...? 
-
+invivo_beeswarm_function(efficacy_summary)
 
