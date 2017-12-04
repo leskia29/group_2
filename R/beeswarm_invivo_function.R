@@ -32,6 +32,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
                                         "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
     mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD")))
   
+  
   if(!is.null(variables)) {
     in_vivo_SM <- in_vivo_SM %>% 
       dplyr::filter(variable %in% variables)
@@ -41,6 +42,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
     in_vivo_SM <- in_vivo_SM %>%
       dplyr::filter(Drugs %in% drugs)
   }
+  
   
   in_vivo_SMplot <- in_vivo_SM %>% 
     ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
@@ -55,7 +57,11 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
   
 }
 
-invivo_beeswarm_function(efficacy_summary, variables = c("Rim (of lesion)","Outer Caseum"), drugs = ("DRUG1"))
-
 invivo_beeswarm_function(efficacy_summary)
+
+#example selection
+invivo_beeswarm_function(efficacy_summary, variables = c("Rim (of lesion)","Outer Caseum"),
+                         drugs = ("DRUG1"))
+
+
 
