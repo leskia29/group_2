@@ -23,7 +23,6 @@ head(efficacy_summary)
 in_vivo <- efficacy_summary %>%
   select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
   rename(Drugs = "drug") %>% 
-  mutate(dosage = factor(dosage)) %>% 
   unite(dosage_interval, dosage:dose_int, sep = "")
 
 head(in_vivo)
@@ -58,7 +57,6 @@ in_vitro <- efficacy_summary %>%
   select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
          MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
   rename(Drugs = "drug") %>% 
-  mutate(dosage = factor(dosage)) %>% 
   unite(dosage_interval, dosage:dose_int, sep = "")
 
 head(in_vitro)
