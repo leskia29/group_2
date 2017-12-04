@@ -35,7 +35,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
   
   if(!is.null(variables)) {
     in_vivo_SM <- in_vivo_SM %>% 
-      dplyr::filter(variable %in% variables)
+      dplyr::filter(variable_filtered %in% variables)
   }
   
   if(!is.null(drugs)) {
@@ -59,8 +59,8 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
 invivo_beeswarm_function(efficacy_summary)
 
 #example selection
-invivo_beeswarm_function(efficacy_summary, variables = c(),
-                         drugs = ("DRUG1"))
+invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ULU", "PLA"),
+                         drugs = c("DRUG1", "DRUG2"))
 
 
 
