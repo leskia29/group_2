@@ -7,9 +7,7 @@ library(ggbeeswarm)
 library(ggthemes)
 library(tidyr)
 library(scales)
-library(tidyr)
-library(crosstalk)
-library(d3scatter)
+library(plotly)
 
 
 efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
