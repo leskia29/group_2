@@ -12,33 +12,27 @@ knitr::opts_chunk$set(echo = TRUE)
 + help files for 'hclust'
 [hclust](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/hclust.html)
 rplot (alluvial diagrams stuff)
-scale columns (subtract mean and divide by SD) before heirarchical clustering
-+ look at scale function to get idea 
 + might want to use mutate_all to scale all columns before run `as.matrix` 
 + ggraph and geomnet 
 [ggraph](https://cran.r-project.org/web/packages/ggraph/index.html) 
-check out vingettes for edges,  layouts, nodes 
-+ principle components analysis (second)
-+ alluvial (which variables could be treated categorical) (third)
 
 reference example_ggraph 
 #split by chemical and biological markers 
-*Colleen does chemical markers 
 [tutorial](http://www.sthda.com/english/articles/28-hierarchical-clustering-essentials/92-visualizing-dendrograms-ultimate-guide/)
 
-```{r}
+```{r libraries and raw data}
 library(readr)
 library(dplyr)
 library(tidyr) #unite
 library(ggraph)
 library(tibble)
 library(dendextend)
-```
-
-```{r add colors}
+library(ggdendro)
 test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
+```
 
+```{r simple cluster diagram }
 test_data_dend <- test_data %>% 
   tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
   remove_rownames %>% 
@@ -47,72 +41,119 @@ test_data_dend <- test_data %>%
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
                "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
+  rename(plasma = PLA,
+         uninvolved_lung = ULU,
+         outer_caseum = OCS,
+         inner_caseum = ICS,
+         standard_lung = SLU,
+         standard_lesion = SLE,
+         macrophage_uptake = MacUptake,
+         human_binding_plasma =huPPB,
+         mouse_binding_plasma = muPPB) %>% 
   as.matrix() %>% 
   t() %>% #transpose 
   dist() %>% 
   hclust() %>% 
+  as.dendrogram(horiz = TRUE, hang = .1) 
+
+ggdendrogram(test_data_dend, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by test") +
+  
+#other plot method 
+# plot(xlab = "",
+#      ylab = "",
+#      main = "Across Drug Measurements",
+#      horiz = TRUE,
+#      axes = FALSE)
+#   par(cex = 0.6, mar=c(9,11,7,7)) %>% #cex magnifies text; mar does axis
+#   par(cex = 0.6)
+#add column 
+# invivo_bio<- c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake") 
+# invitro_chem<- c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE")
+```
+
+```{r make formatted dendogram by drug  }
+test_data_dend2 <- test_data %>% 
+  tidyr::unite(drugdetail, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  mutate_each_(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+               "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% #scales
+  select(drugdetail, PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
+  tibble::column_to_rownames (var = "drugdetail") %>%  #make drugdetail leaf name!  
+  dist() %>% 
+  hclust() %>%  #can change method 
+  as.dendrogram(horiz = TRUE, hang = .1) 
+
+ggdendrogram(test_data_dend2, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             #leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by drug, dose, dose-int, and level") +
+  theme(axis.title.x = element_blank(),
+         axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+  
+```
+resource for color coding leaves [here](https://stackoverflow.com/questions/31117849/how-to-color-a-dendrograms-labels-according-to-defined-groups-in-r)
+learn about extendogram [here](https://cran.r-project.org/web/packages/dendextend/vignettes/introduction.html)
+also [here](https://rpubs.com/gaston/dendrograms) 
+
+```{r sort by in vivo or in vitro IN PROGRESS }
+test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                             "master/CSV_Files/efficacy_summary.csv"))
+
+sortr <- test_data %>% 
+  tidyr::unite(drugdetail, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  remove_rownames %>% 
+  tibble::column_to_rownames (var = "drugdetail") %>%  #make drugdetail row name , but doesn' showup 
+  select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
+  mutate_each_(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+               "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% #scales 
+  as.matrix() %>% 
+  t() %>%  
+  as.data.frame() %>% 
+  tibble::rownames_to_column(var = "drugtype") #makes drugtype new rowname, but dont see 
+
+sortr$type <- ifelse(sortr$drugtype %in% c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake"), "invivo", "invitro") #made new column 
+df<- sortr %>% 
+ # select(drugtype,type, DRUG1_50_BID_Cmax:DRUG11_100_QD_Trough) %>% #if include type 
+  select(drugtype,type, V1:V21) %>% #lost column names 
+  dist() %>% 
+  hclust() %>% 
   as.dendrogram(horiz = TRUE, hang = .1) %>% 
-  plot(xlab = "",
+plot(xlab = "",
      ylab = "",
      main = "Across Drug Measurements",
      horiz = TRUE,
      axes = FALSE)
   par(cex = 0.6, mar=c(9,11,7,7)) %>% #cex magnifies text; mar does axis
-  par(cex = 0.6)
-#add column 
-invivo_bio<- c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake") 
-invitro_chem<- c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE")
+  par(cex = 0.6) 
 
-#color for chemical vs biological indepdent of the cluster; different grouping 
-# differenet heirarchical algorithms 
-# add invitro and invivo identifiers 
-# add full names 
-
-```
-
-RIM = rim
-OCS - outer caeseum
-ICS -inner caseesum
-uninvolved lung ULU
-ULU -> rim -> OCS --> ICS  
-pla plasma
-sle - standard lesion (entire)
-standard lung SLU 
-mic - minimum inhibiroy concenration 
-
-
-resource for color coding leaves [here](https://stackoverflow.com/questions/31117849/how-to-color-a-dendrograms-labels-according-to-defined-groups-in-r)
-learn about extendogram [here](https://cran.r-project.org/web/packages/dendextend/vignettes/introduction.html)
-also [here](https://rpubs.com/gaston/dendrograms) 
-
-```{r now categorize invivo invitro}
-test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
-                             "master/CSV_Files/efficacy_summary.csv"))
-
-sortr <- test_data %>% 
-  tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
-  remove_rownames %>% 
-  column_to_rownames (var = "drugz") %>%  #make drugz row name 
-  select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
-  mutate_each_(funs(scale(.) %>% as.vector),
-               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
-               "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
-  t() %>% 
-  #add column to identify invivo or invitro
-  #add identifier to invivo or invitro 
-  mutate(invivo = c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake"))
-  as.matrix() %>% 
-  t() #transpose 
-  as.data.
+#how to make dendogram and color according to column (invivo or invitro)
   
-  sortr<- sortr %>% 
-    as.data.frame() %>% 
-    column_to_rownames(var = "invivo")
-    mutate(invivo, )
+ggdendrogram(df, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             #leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by test") +
+  theme(axis.title.x = element_blank(),
+         axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
 
 ```
-
-
 
 
 
