@@ -43,7 +43,6 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
       dplyr::filter(Drugs %in% drugs)
   }
   
-  
   in_vivo_SMplot <- in_vivo_SM %>% 
     ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
     geom_beeswarm(alpha = 0.5, size = 1.5)+
