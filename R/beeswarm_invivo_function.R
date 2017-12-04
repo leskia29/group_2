@@ -5,8 +5,7 @@ efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_out
 #IMPORTANT NOTES:
 
 #OPTIONS FOR VARIABLES STATEMENT
-#"Rim (of lesion)", "Outer Caseum", "Inner Caseum",
-#"Uninvolved Lung", "Standard Lung", "Standard Lesion", "Plasma"
+#"RIM", "OCS","ICS","ULU","SLU","SLE","PLA"
 
 #OPTIONS FOR DRUGS STATEMENT
 #"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
@@ -26,7 +25,8 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
     unite(dosage_interval, dosage:dose_int, sep = "")
   
   in_vivo_SM <- in_vivo %>% 
-    gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
+    gather(key = variable, value = value, -Drugs, -dosage_interval) %>%
+    mutate(variable_filtered = variable) %>% 
     mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
                              labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung",
                                         "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
@@ -59,7 +59,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
 invivo_beeswarm_function(efficacy_summary)
 
 #example selection
-invivo_beeswarm_function(efficacy_summary, variables = c("Rim (of lesion)","Outer Caseum"),
+invivo_beeswarm_function(efficacy_summary, variables = c(),
                          drugs = ("DRUG1"))
 
 
