@@ -7,7 +7,6 @@ invivo_function <- function(efficacy_summary, variables = c(), drugs = c()) {
   in_vivo <- efficacy_summary %>%
     select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
     rename(Drugs = "drug") %>% 
-    mutate(dosage = factor(dosage)) %>% 
     unite(dosage_interval, dosage:dose_int, sep = "")
   
   in_vivo_SM <- in_vivo %>% 
