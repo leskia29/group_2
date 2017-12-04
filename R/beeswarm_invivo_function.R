@@ -1,6 +1,6 @@
 #invivo function
 
-invivo_function <- function(efficacy_summary, variables = c(), drugs = c()) {
+invivo_beeswarm_function <- function(efficacy_summary, variables = c(), drugs = c()) {
   
   efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                                       "master/CSV_Files/efficacy_summary.csv"))
@@ -37,7 +37,7 @@ invivo_function <- function(efficacy_summary, variables = c(), drugs = c()) {
 
 invivo_function(efficacy_summary, variables = c("Rim (of lesion)"), drugs = ("DRUG1"))
 
-invivo_function()
+invivo_beeswarm_function()
 
 #figure out why it's not selecting 
 #should I source the csv in the function...? 
