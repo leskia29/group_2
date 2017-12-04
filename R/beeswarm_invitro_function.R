@@ -8,7 +8,6 @@ invitro_function <- function(efficacy_summary, variables = c(), drugs = c()){
     select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
            MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
     rename(Drugs = "drug") %>% 
-    mutate(dosage = factor(dosage)) %>% 
     unite(dosage_interval, dosage:dose_int, sep = "")
   
   in_vitro_SM <- in_vitro %>% 
