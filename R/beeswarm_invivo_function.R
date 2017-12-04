@@ -52,7 +52,9 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
     theme_few()+
     facet_wrap(~ variable, ncol = 4)
   
-  return(in_vivo_SMplot)
+  ggplotly(in_vivo_SMplot)
+  
+  return(ggplotly(in_vivo_SMplot))
   
 }
 
