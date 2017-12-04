@@ -10,7 +10,7 @@ efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_out
 
 #OPTIONS FOR DRUGS STATEMENT
 #"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
-#"DRUG7", "DRUG8", "DRUG9", "DRUG8", "DRUG9", "DRUG10", DRUG11"
+#"DRUG7", "DRUG8", "DRUG9", "DRUG10", DRUG11" 
 
 #if default is NULL (i.e. no input for variabels and drugs statements) 
 #then it will plot ALL variables and drugs! 
