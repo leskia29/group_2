@@ -14,15 +14,14 @@ library(dendextend)
 # sle - standard lesion (entire)
 # standard lung SLU 
 # mic - minimum inhibiroy concenration 
-# 
+#
 
-test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
-
-test_data_dend <- test_data %>% 
+data_dend <- data %>% 
   tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
   remove_rownames %>% 
-  column_to_rownames (var = "drugz") %>%  #make drugz row name 
+  column_to_rownames (var = "drugs") %>%  #make drugz row name 
   select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
@@ -48,5 +47,5 @@ test_data_dend <- test_data %>%
        horiz = TRUE,
        axes = FALSE)
 par(cex = 0.5, mar=c(10,12,10,10)) %>% #cex magnifies text; mar does axis
-  par(cex = 0.6)
+  par(cex = 0.6) 
 
