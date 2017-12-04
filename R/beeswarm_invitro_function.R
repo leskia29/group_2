@@ -1,9 +1,24 @@
 #in vitro function 
 
-invitro_beeswarm_function <- function(efficacy_summary, variables = c(), drugs = c()){
+efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                                    "master/CSV_Files/efficacy_summary.csv")
+
+#IMPORTANT NOTES:
+
+#OPTIONS FOR VARIABLES STATEMENT
+
+
+#OPTIONS FOR DRUGS STATEMENT
+#"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
+#"DRUG7", "DRUG8", "DRUG9", "DRUG10", DRUG11" 
+
+#if default is NULL (i.e. no input for variabels and drugs statements) 
+#then it will plot ALL variables and drugs! 
+
+invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs = NULL) {
   
-  efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
-                                      "master/CSV_Files/efficacy_summary.csv"))
+  efficacy_summary <- read_csv(efficacy_summary) 
+
   in_vitro <- efficacy_summary %>%
     select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
            MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
@@ -12,6 +27,7 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = c(), drugs =
   
   in_vitro_SM <- in_vitro %>% 
     gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
+    mutate(variable_filtered = variable) %>% 
     mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"),
                              labels = c("Caseum \nBinding", "cLogP", 
                                         "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
@@ -19,11 +35,16 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = c(), drugs =
                                         "Macrophage \nUptake (Ratio)"))) %>% 
     mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
   
-  invitro_variable_filtered <- in_vitro_SM %>% 
-    dplyr::filter(variable %in% variables)
   
-  invitro_drug_filtered <- in_vitro_SM %>% 
-    dplyr::filter(Drugs %in% drugs)
+  if(!is.null(variables)) {
+    in_vitro_SM <- in_vitro_SM %>% 
+      dplyr::filter(variable_filtered %in% variables)
+  }
+  
+  if(!is.null(drugs)) {
+    in_vitro_SM <- in_vitro_SM %>%
+      dplyr::filter(Drugs %in% drugs)
+  }
   
   
   in_vitro_SMplot <- in_vitro_SM %>% 
@@ -38,8 +59,8 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = c(), drugs =
   
 }
 
-invitro_beeswarm_function()
+invitro_beeswarm_function(efficacy_summary)
 
-#figure out why it's not selecting 
-#should I source the csv file in the function? 
+#example selection 
+invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "huPPB"), drugs = c("DRUG1", "DRUG2","DRUG3"))
 
