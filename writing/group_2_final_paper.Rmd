@@ -10,14 +10,9 @@ output:
 ```{r global options}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
+###Rationale and Idea Development for Indepednent Variables
+This project investigates the independent variables from the Tuberculosis data. The independent variables include variables that are both in-vivo and in-vitro with measurements at different parts of a mouse lung.  This group chose three different graphing methods to look at these independent varaibles including beeswarm plots, correlation plots, and hierarchial clustering plots. For each plot the goal was to help the researchers understand the connections between the different indepedent variables based on their data. As a group, we explored three different packages that would assist the researchers in understanding the independent data, these include ggbeeswarm for the beeswarm plots, ggcorplot and ggpolypath for the correlation plots, and ggdend for the dendrograms that represent the hierarchial clustering. The biggest challenges for deciding which packages to use was attempting to understand the methodology of the different packages. Many of these packages use techniques that were at times more advanced than our R skills. The way we addressed these issues was using stack overflow and the vignettes for the packages to see examples of how the packages are used.
 
-This project investigates the independent variables from the Tuberculosis data. The independent variables include variables that are both in-vivo and in-vitro with measurements at different parts of a mouse lung.  This group chose three different graphing methods to look at these independent varaibles including beeswarm plots, correlation plots, and hierarchial clustering plots. For each plot the goal was to help the researchers understand the connections between the different indepedent variables based on their data.
-
-##Rationale
-Explain what you were hoping to achieve in writing the
-functions / app framework that your group created.
-
-##Idea Development
 Describe the different ideas your group explored.
 What were the biggest challenges in this stage? For any ideas that
 didn’t pan out, what were the key constraints? Also describe how you
@@ -27,20 +22,23 @@ would tackle this problem if you were starting over.
 Key functions: Describe the final functions / app framework you
 decided on. Explain why you picked these. For functions, include
 documentation for the functions:
-##Beeswarm Plots  
+###Beeswarm Plots  
 
 key function stuff  
 
-##Correlation Plots  
+###Correlation Plots  
 key function stuff  
 
-##Hierarchial Clustering
+###Hierarchial Clustering
 key function stuff  
 
-##Room for error  
+###Room for error 
+While writing functions for each of our plots, we considered potential user erro for our functions. One consideration, is dealing with data if there is missing data within the columns for each of our plots there may be limitations if there is missing data in an entire column. One way to resolve this in the future is to specify what to do with missing data before running the function. Another issue we thought about is the number of rows within the datasets for future use.  We considered if there as just one row versus 500 rows, if our code would run the same as it is now. Another consideration is how the radio buttons discord with the drug labels. If the shiny app has labeled the drugs a certain way and the drug names change within the data, the shiny app would need to be updated.
+
+###Problems We Faced
 
 
-## Next steps  
+###Next steps  
 Next steps: Include a section where you describe what you think are
 interesting next steps, i.e., what you would pursue next if you were
 continuing work on this project.

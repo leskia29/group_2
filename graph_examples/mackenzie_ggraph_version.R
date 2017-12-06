@@ -76,7 +76,7 @@ sortr <- test_data %>%
   remove_rownames %>% 
   tibble::column_to_rownames (var = "drugdetail") %>%  #make drugdetail row name , but doesn' showup 
   select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
-  mutate_each(funs(scale(.) %>% as.vector),
+  mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
                         "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
   #scales 
