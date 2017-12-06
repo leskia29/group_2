@@ -36,9 +36,21 @@ key function stuff
 While writing functions for each of our plots, we considered potential user erro for our functions. One consideration, is dealing with data if there is missing data within the columns for each of our plots there may be limitations if there is missing data in an entire column. One way to resolve this in the future is to specify what to do with missing data before running the function. Another issue we thought about is the number of rows within the datasets for future use.  We considered if there as just one row versus 500 rows, if our code would run the same as it is now. Another consideration is how the radio buttons discord with the drug labels. If the shiny app has labeled the drugs a certain way and the drug names change within the data, the shiny app would need to be updated.
 
 ###Problems We Faced
+Mouse small plots probs:
+Beeswarm: 
+Lack of “beeswarm” or “violin” shape ?
+Labels, labels, labels 
+Busy plots 
+ggdend:
+Aesthetics of ggdendrogram plots
 
 
-###Next steps  
-Next steps: Include a section where you describe what you think are
-interesting next steps, i.e., what you would pursue next if you were
-continuing work on this project.
+
+###Next steps for the Independent Variables:
+Some of the next steps are group considered included being able to customize and munipulate the labels. We might also want to add descriptions of the different tests or measurements using plotly so the user can understand what the different measurements or tests are doing within the mouse. We thought it might be useful to be able to allow for the plots to be exported as a PDF to be used in reports and other 
+-customizing labels 
+-adding descriptions of the tests using plotly 
+-exporting plots into PDF 
+-consideration and addition of controls in the data (for comparison) 
+-cmax and trough 
+-analysis of drug combinations 
