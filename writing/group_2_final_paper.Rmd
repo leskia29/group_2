@@ -1,11 +1,46 @@
 ---
-title: "group_2_final_paper"
-author: "Marialexia Alfano"
+title: "Group 2 Final Report"
+author: "Alexia Alfano, Rebecca Foos, Colleen Brents, Mackenzie Fry"
 date: "December 4, 2017"
-output: html_document
+output:
+  word_document: default
+  html_document: default
 ---
 
 ```{r global options}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
+This project investigates the independent variables from the Tuberculosis data. The independent variables include variables that are both in-vivo and in-vitro with measurements at different parts of a mouse lung.  This group chose three different graphing methods to look at these independent varaibles including beeswarm plots, correlation plots, and hierarchial clustering plots. For each plot the goal was to help the researchers understand the connections between the different indepedent variables based on their data.
+
+##Rationale
+Explain what you were hoping to achieve in writing the
+functions / app framework that your group created.
+
+##Idea Development
+Describe the different ideas your group explored.
+What were the biggest challenges in this stage? For any ideas that
+didn’t pan out, what were the key constraints? Also describe how you
+would tackle this problem if you were starting over.
+  
+  
+Key functions: Describe the final functions / app framework you
+decided on. Explain why you picked these. For functions, include
+documentation for the functions:
+##Beeswarm Plots  
+
+key function stuff  
+
+##Correlation Plots  
+key function stuff  
+
+##Hierarchial Clustering
+key function stuff  
+
+##Room for error  
+
+
+## Next steps  
+Next steps: Include a section where you describe what you think are
+interesting next steps, i.e., what you would pursue next if you were
+continuing work on this project.

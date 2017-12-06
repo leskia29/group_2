@@ -4,28 +4,18 @@ library(tidyr) #unite
 library(ggraph)
 library(tibble)
 library(dendextend)
+library(ggdendro)
 
-# RIM = rim
-# OCS - outer caeseum
-# ICS -inner caseesum
-# uninvolved lung ULU
-# ULU -> rim -> OCS --> ICS  
-# pla plasma
-# sle - standard lesion (entire)
-# standard lung SLU 
-# mic - minimum inhibiroy concenration 
-#
-
-data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv"))
-data_dend <- data %>% 
+test_data_dend <- test_data %>% 
   tidyr::unite(drugz, drug:level, sep = "_") %>% #combine identifying data into one column, 
   remove_rownames %>% 
-  column_to_rownames (var = "drugs") %>%  #make drugz row name 
+  column_to_rownames (var = "drugz") %>%  #make drugz row name 
   select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
   mutate_each_(funs(scale(.) %>% as.vector),
                vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
-                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>%
+                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
   rename(plasma = PLA,
          uninvolved_lung = ULU,
          outer_caseum = OCS,
@@ -35,9 +25,70 @@ data_dend <- data %>%
          macrophage_uptake = MacUptake,
          human_binding_plasma =huPPB,
          mouse_binding_plasma = muPPB) %>% 
-        
   as.matrix() %>% 
   t() %>% #transpose 
+  dist() %>% 
+  hclust() %>% 
+  as.dendrogram(horiz = TRUE, hang = .1) 
+
+ggdendrogram(test_data_dend, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by test")
+
+test_data_dend2 <- test_data %>% 
+  tidyr::unite(drugdetail, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  mutate_each_(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% #scales
+  select(drugdetail, PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
+  tibble::column_to_rownames (var = "drugdetail") %>%  #make drugdetail leaf name!  
+  dist() %>% 
+  hclust() %>%  #can change method 
+  as.dendrogram(horiz = TRUE, hang = .1) 
+
+ggdendrogram(test_data_dend2, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             #leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by Drug") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+
+
+
+
+
+test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                             "master/CSV_Files/efficacy_summary.csv"))
+
+sortr <- test_data %>% 
+  tidyr::unite(drugdetail, drug:level, sep = "_") %>% #combine identifying data into one column, 
+  remove_rownames %>% 
+  tibble::column_to_rownames (var = "drugdetail") %>%  #make drugdetail row name , but doesn' showup 
+  select(PLA:MacUptake, -ELU, -ESP) %>%  #remove efficacy 
+  mutate_each(funs(scale(.) %>% as.vector),
+               vars = c("PLA", "ULU", "RIM", "OCS", "ICS", "SLU", "SLE", "cLogP", "huPPB","muPPB",
+                        "MIC_Erdman", "MICserumErd", "MIC_Rv", "Caseum_binding", "MacUptake")) %>% 
+  #scales 
+  as.matrix() %>% 
+  t() %>%  
+  as.data.frame() %>% 
+  tibble::rownames_to_column(var = "drugtype") #makes drugtype new rowname, but dont see 
+
+sortr$type <- ifelse(sortr$drugtype %in% c("cLogP", "huPPB","muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake"), "invivo", "invitro") #made new column 
+df<- sortr %>% 
+  # select(drugtype,type, DRUG1_50_BID_Cmax:DRUG11_100_QD_Trough) %>% #if include type 
+  select(drugtype,type, V1:V21) %>% #lost column names 
   dist() %>% 
   hclust() %>% 
   as.dendrogram(horiz = TRUE, hang = .1) %>% 
@@ -46,6 +97,21 @@ data_dend <- data %>%
        main = "Across Drug Measurements",
        horiz = TRUE,
        axes = FALSE)
-par(cex = 0.5, mar=c(10,12,10,10)) %>% #cex magnifies text; mar does axis
+par(cex = 0.6, mar=c(9,11,7,7)) %>% #cex magnifies text; mar does axis
   par(cex = 0.6) 
 
+
+
+
+
+ggdendrogram(df, 
+             segments = TRUE,
+             rotate = TRUE, 
+             labels = TRUE,
+             #leaf_labels = TRUE,
+             size = 2,
+             theme_dendro = TRUE)  +
+  labs(title = "Comparison by test") +
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
