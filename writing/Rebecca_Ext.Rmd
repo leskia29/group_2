@@ -10,12 +10,32 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r ggmosaic}
+```{r mouse}
+library(ggmap)
+library(readxl)
+library(ggpolypath)
+library(viridis)
+
+mouse <- read_excel('../sample_data/MouseCoord.xlsx') 
+ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = ELEMENT)) +
+  geom_polypath(rule = "evenodd") +
+  geom_path(colour = "black", size = .5) +
+  theme_void() +
+  theme(legend.position = 'none') +
+  coord_fixed() +
+  scale_fill_viridis(discrete = TRUE, option = "magma") 
 
 ```
 
 
-
-```{r geom_tile}
+```{r lesion}
+lesion <- read_excel('../sample_data/LesionCoord.xlsx') 
+ggplot(data = lesion, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = AREA)) +
+  geom_polypath(rule = "evenodd") +
+  geom_path(colour = "black", size = .5) +
+  theme_void() +
+  theme(legend.position = 'none', panel.background = element_rect(fill = "darkgray")) +
+  coord_fixed(ratio = 1, xlim = c(-12,12), ylim = c(-12,12)) +
+  scale_fill_viridis(discrete = TRUE, option = "magma") 
 
 ```
