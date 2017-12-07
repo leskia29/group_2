@@ -10,20 +10,37 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r mouse}
+```{r mouse, fig.width = 8, fig.height = 8}
 library(ggmap)
 library(readxl)
 library(ggpolypath)
 library(viridis)
+library(dplyr)
+library(tidyr)
 
-mouse <- read_excel('../sample_data/MouseCoord.xlsx') 
-ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = ELEMENT)) +
+source("../sampledata.R")
+
+example_data <- test_data %>% 
+  select(drug, dosage, dose_int, level, PLA, SLU, SLE) %>% 
+  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
+  filter(level == "Cmax") %>% 
+  gather(PLA:SLE, key = "ELEMENT", value = concentration) %>% 
+  mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE"),
+                          labels = c("MOUSE", "LUNGS", "LESION")),
+         ELEMENT = as.character(ELEMENT))
+
+mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>% 
+  left_join(example_data, by = "ELEMENT")
+
+ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE, 
+                         fill = concentration)) +
   geom_polypath(rule = "evenodd") +
   geom_path(colour = "black", size = .5) +
   theme_void() +
-  theme(legend.position = 'none') +
-  coord_fixed() +
-  scale_fill_viridis(discrete = TRUE, option = "magma") 
+  theme(legend.position = 'top') +
+  coord_fixed()  +
+  scale_fill_viridis(option = "magma") + 
+  facet_wrap(~ drug_dosing)
 
 ```
 
