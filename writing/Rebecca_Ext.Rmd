@@ -46,7 +46,32 @@ ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE,
 
 
 ```{r lesion}
-lesion <- read_excel('../sample_data/LesionCoord.xlsx') 
+
+
+example_data1 <- test_data %>% 
+  select(drug, dosage, dose_int, level, ULU, RIM, OCS, ICS) %>% 
+  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
+  filter(level == "Cmax") %>% 
+  gather(ULU:ICS, key = "AREA", value = concentration) %>% 
+  mutate(AREA = factor(AREA, levels = c("ULU", "RIM", "OCS", "ICS"),
+                          labels = c("LUNG", "RIM", "OUTER", "INNER")),
+         AREA = as.character(AREA))
+
+lesion <- read_excel('../sample_data/LesionCoord.xlsx') %>% 
+  left_join(example_data1, by = "AREA")
+
+ggplot(data =lesion, aes(mapping = TRUE, x = X, y = Y, group = HOLE, 
+                         fill = concentration)) +
+  geom_polypath(rule = "evenodd") +
+  geom_path(colour = "black", size = .5) +
+  theme_void() +
+  theme(legend.position = 'top') +
+  coord_fixed()  +
+  scale_fill_viridis(option = "magma") + 
+  facet_wrap(~ drug_dosing)
+
+
+
 ggplot(data = lesion, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = AREA)) +
   geom_polypath(rule = "evenodd") +
   geom_path(colour = "black", size = .5) +
