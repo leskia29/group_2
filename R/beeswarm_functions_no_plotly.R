@@ -58,7 +58,7 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
 
 invivo_beeswarm_function(efficacy_summary)
 
-#example selection
+#example plot
 invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ICS", "PLA"),
                          drugs = c("DRUG1", "DRUG2","DRUG11", "DRUG9"))
 
