@@ -129,6 +129,7 @@ invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs 
 
 invitro_beeswarm_function(efficacy_summary)
 
-#example selection 
+#example plot
 invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_binding"),
                           drugs = c("DRUG1", "DRUG5"))
+
