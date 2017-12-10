@@ -1,7 +1,7 @@
 ---
 title: "Independent Variable Analyses of Tuberculosis Drug Studies Using R (Group 2)"
 author: "Alexia Alfano, Rebecca Foos, Colleen Brents, Mackenzie Fry"
-date: "December 4, 2017"
+date: "December 14, 2017"
 output:
   word_document: default
   html_document: default
@@ -27,17 +27,229 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 ###Beeswarm   
 ####Beeswarm Coding Methods and Plots 
+  For the beeswarm plots the data was split up between invivo and invitro independent variables. The code below is the basis for the output of the functions described later and all the packages needed are listed. The code for both invivo and invitro is logistically the same and there are several key components in the code which are worth noting their purpose. The `unite()`, `gather()`, and `mutate()` have comments next to them describing their importance. Within the code that creates the plots of the data, there are also comments describing the key components of this process. 
 
+```{r fig.width=7.5}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggbeeswarm)
+library(ggthemes)
+library(tidyr)
+library(scales)
+library(plotly)
+
+efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/","master/CSV_Files/efficacy_summary.csv"))
+
+#select for in-vivo marker variables
+in_vivo <- efficacy_summary %>%
+  select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
+  rename(Drugs = "drug") %>% 
+  unite(dosage_interval, dosage:dose_int, sep = "") #brings together dosage (50 & 100) with intervals (BID & QD) 
+
+head(in_vivo)
+
+#gather for small multiples in-vivo markers
+in_vivo_SM <- in_vivo %>% 
+  gather(key = variable, value = value, -Drugs, -dosage_interval) %>% #allows us to make small multiples by combining all the values into one column and the variable they belong to in another column 
+  mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
+                           labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung", "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
+  mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD"))) #prevents the numeric scaling of the x axis values, so it spaces it like two factors in the order given above
+
+head(in_vivo_SM)
+
+#plot small multiples in-vivo markers 
+in_vivo_SMplot <- in_vivo_SM %>% 
+  ggplot(aes(x = dosage_interval, y = value, color = Drugs))+ #main structure of x & y axis
+  geom_beeswarm(alpha = 0.5, size = 1.5)+ #incorporates beeswarm plot style 
+  scale_y_log10()+ #log scale, used for the invivo group to cover wide range of values 
+  labs(x = 'Dosage-Interval', y = 'Value')+ 
+  ggtitle('In-Vivo Distribution of TB Drugs')+ 
+  theme_few()+
+  facet_wrap(~ variable, ncol = 4) #creates small multiples by variable 
+
+in_vivo_SMplot 
+
+#####################################################################
+
+#select for in-vitro marker variables
+in_vitro <- efficacy_summary %>%
+  select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
+         MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
+  rename(Drugs = "drug") %>% 
+  unite(dosage_interval, dosage:dose_int, sep = "")
+
+head(in_vitro)
+
+#gather for small multiples in-vitro markers
+in_vitro_SM <- in_vitro %>% 
+  gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
+  mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"),
+                           labels = c("Caseum \nBinding", "cLogP", 
+                                      "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
+                                      "MIC Erdman \nStrain", "MIC Erdman \nStrain \nwith Serum", "MIC Rv Strain",
+                                      "Macrophage \nUptake (Ratio)"))) %>% 
+  mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
+
+head(in_vitro_SM) 
+
+#plot small multiples in-vitro markers 
+in_vitro_SMplot <- in_vitro_SM %>% 
+  ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
+  geom_beeswarm(alpha = 0.5, size = 1.5)+
+  labs(x = 'Dosage-Interval', y = 'Value')+
+  ggtitle('In-Vitro Distribution of TB Drugs')+
+  theme_few()+
+  facet_wrap(~ variable, ncol = 4, scale="free") #scale free = each plot to have different y axis scales, as seen fit 
+
+in_vitro_SMplot
+```
 
 ####Beeswarm Functions
 
-The beeswarm functions called `invivo_beeswarm_function()` and `invitro_beeswarm_function()` follow suit with the division of the independent variables between in-vivo and in-vitro. The functions are built to produce visual outputs for both. The two functions operate with very similar or almost identical logistics in terms of the code, so the following is an explanation of the main concepts used to design and build both functions. 
-	One goal of the functions is to allow the researchers to plot all of the independent variable data quickly and efficiently. Another goal of the functions is to provide the researchers with the power to control which data they want to visualize and/or compare across all of the independent variables measured. There are particular parts of the function code that accomplish these goals. By setting the statements for variables and drugs to NULL (line ), it tells the function to produce plots of all the variables and drugs UNLESS otherwise specified. If the researcher inputs `invivo_beeswarm_function(efficacy_summary)` then all the small multiple plots and all the drugs will be returned. 
-The following IF statements (lines        ) in the function are what direct the function in that UNLESS otherwise specified situation. When the variables statement or drugs statement is NOT null, the function tells it to filter the variables or drugs as requested in the input from the “variables_filtered” or “Drugs” columns of data. As an example, if the researcher types specific variables or drugs they want to plot together (line     ), then the function will plot only what they ask it to (figure   ). If you are wondering how the “variables_filtered” differs exactly from the “variables”, this aspect is explained in detail below, under the topic “Problems We Faced”. 
-The beeswarm functions were designed with these capabilities following discussion with the researchers who provided/and are familiar with the independent variable data. Because all of the data together can be quite overwhelming to look at, it became clear that the researchers were interested in the ability to separate out the plots as much as possible so comparisons of specific variables and drugs can be explored upon their discretion. 
-The beeswarm functions employ `plotly` and `ggplotly()` in particular to add an interactive element to the plots, however the code lines for this needed to be left out of this writeup in order for Rmarkdown to knit this document. This is a key component of the code that was given to the group working on building the Shiny App, which allowed the final plots built in the app to have detailed descriptions appear when the mouse was placed over any point in any of the small multiple plots produced. The Shiny App group also contributed to the creation of radio (check) buttons to go along with my functions, which ultimately allow for the researchers to make selections of specific variables and drugs within the Shiny interface.
+  The beeswarm functions called `invivo_beeswarm_function()` and `invitro_beeswarm_function()` follow suit with the division of the independent variables between invivo and invitro. The functions are built to produce visual outputs for both. The two functions operate with almost identical logistics in terms of the code, so the following is an explanation of the main concepts used to design and build both functions. 
+	One goal of the functions is to allow the researchers to plot all of the independent variable data quickly and efficiently. Another goal of the functions is to provide the researchers with the power to control which data they want to visualize and/or compare across all of the independent variables measured. There are particular parts of the function code that accomplish these goals. By setting the statements for variables and drugs to NULL, it tells the function to produce plots of all the variables and drugs *unless* otherwise specified. If the researcher inputs `invivo_beeswarm_function(efficacy_summary)` then all the small multiple plots and all the drugs will be returned. 
+The following *if* statements in the function are what direct the function in that "unless otherwise" specified situation. When the variables statement or drugs statement is *not* null, the function tells it to filter the variables or drugs as requested in the input from the “variable_filtered” or “Drugs” columns of data. As an example, if the researcher types specific variables or drugs they want to plot together, then the function will plot only what they ask it to. If you are wondering how the “variable_filtered” differs exactly from the “variables”, this aspect is explained in detail below, under the topic “Problems We Faced”. 
+  The beeswarm functions were designed with these capabilities following discussion with the researchers who provided/and are familiar with the independent variable data. Because all of the data together can be quite overwhelming to look at, it became clear that the researchers were interested in the ability to separate out the plots as much as possible so comparisons of specific variables and drugs can be explored upon their discretion. 
+  The beeswarm functions employ `plotly` and `ggplotly()` in particular to add an interactive element to the plots, however the code lines for this needed to be left out of this writeup in order for Rmarkdown to knit this document. This is a key component of the code that was given to the group working on building the Shiny App, which allowed the final plots built in the app to have detailed descriptions appear when the mouse was placed over any point in any of the small multiple plots. The Shiny App group also contributed to the creation of radio (check) buttons to go along with my functions, which ultimately allow the researchers to make selections of specific variables and drugs within the Shiny interface.
+  
+```{r fig.width=7.5}
+#invivo function
+
+efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                           "master/CSV_Files/efficacy_summary.csv")
+
+#IMPORTANT NOTES: #created as reference for Shiny App creators 
+
+#OPTIONS FOR VARIABLES STATEMENT
+#"RIM", "OCS","ICS","ULU","SLU","SLE","PLA"
+
+#OPTIONS FOR DRUGS STATEMENT
+#"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
+#"DRUG7", "DRUG8", "DRUG9", "DRUG10", DRUG11" 
+
+#if default is NULL (i.e. no input for variables and drugs statements) 
+#then it will plot ALL variables and drugs! 
 
 
+invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs = NULL) {
+  
+  efficacy_summary <- read_csv(efficacy_summary) 
+  
+  in_vivo <- efficacy_summary %>%
+    select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
+    rename(Drugs = "drug") %>% 
+    unite(dosage_interval, dosage:dose_int, sep = "")
+  
+  in_vivo_SM <- in_vivo %>% 
+    gather(key = variable, value = value, -Drugs, -dosage_interval) %>%
+    mutate(variable_filtered = variable) %>% #explained in more detail in "Problems We Faced"
+    mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
+                             labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung",
+                                        "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
+    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD")))
+  
+  
+  if(!is.null(variables)) {
+    in_vivo_SM <- in_vivo_SM %>% 
+      dplyr::filter(variable_filtered %in% variables)
+  }
+  
+  if(!is.null(drugs)) {
+    in_vivo_SM <- in_vivo_SM %>%
+      dplyr::filter(Drugs %in% drugs)
+  }
+  
+  in_vivo_SMplot <- in_vivo_SM %>% 
+    ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
+    geom_beeswarm(alpha = 0.5, size = 1.5)+
+    scale_y_log10()+
+    labs(x = 'Dosage-Interval', y = 'Value')+
+    ggtitle('In-Vivo Distribution of TB Drugs')+
+    theme_few()+
+    facet_wrap(~ variable, ncol = 4)
+  
+  return(in_vivo_SMplot)
+  
+}
+
+invivo_beeswarm_function(efficacy_summary) #example if statements left null, everything is plotted 
+
+#example plot
+invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ICS", "PLA"),
+                         drugs = c("DRUG1", "DRUG2","DRUG11", "DRUG9"))
+```
+
+```{r fig.width=7.5}
+#in vitro function 
+
+efficacy_summary <- paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
+                           "master/CSV_Files/efficacy_summary.csv")
+
+#IMPORTANT NOTES:
+
+#OPTIONS FOR VARIABLES STATEMENT
+#"Caseum_binding", "cLogP", "huPPB", "muPPB",
+#"MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"
+
+#OPTIONS FOR DRUGS STATEMENT
+#"DRUG1", "DRUG2", "DRUG3", "DRUG4", "DRUG5", "DRUG6", 
+#"DRUG7", "DRUG8", "DRUG9", "DRUG10", DRUG11" 
+
+#if default is NULL (i.e. no input for variabels and drugs statements) 
+#then it will plot ALL variables and drugs! 
+
+invitro_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs = NULL) {
+  
+  efficacy_summary <- read_csv(efficacy_summary) 
+  
+  in_vitro <- efficacy_summary %>%
+    select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
+           MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
+    rename(Drugs = "drug") %>% 
+    unite(dosage_interval, dosage:dose_int, sep = "")
+  
+  in_vitro_SM <- in_vitro %>% 
+    gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
+    mutate(variable_filtered = variable) %>% 
+    mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman",
+                                                  "MICserumErd", "MIC_Rv", "MacUptake"),
+                             labels = c("Caseum \nBinding", "cLogP", 
+                                        "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
+                                        "MIC Erdman \nStrain", "MIC Erdman \nStrain \nwith Serum", "MIC Rv Strain",
+                                        "Macrophage \nUptake (Ratio)"))) %>% 
+    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
+  
+  
+  if(!is.null(variables)) {
+    in_vitro_SM <- in_vitro_SM %>% 
+      dplyr::filter(variable_filtered %in% variables)
+  }
+  
+  if(!is.null(drugs)) {
+    in_vitro_SM <- in_vitro_SM %>%
+      dplyr::filter(Drugs %in% drugs)
+  }
+  
+  
+  in_vitro_SMplot <- in_vitro_SM %>% 
+    ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
+    geom_beeswarm(alpha = 0.5, size = 1.5)+
+    labs(x = 'Dosage-Interval', y = 'Value')+
+    ggtitle('In-Vitro Distribution of TB Drugs')+
+    theme_few()+
+    facet_wrap(~ variable, ncol = 4, scale="free")
+  
+  return(in_vitro_SMplot)
+  
+}
+
+invitro_beeswarm_function(efficacy_summary)
+
+#example plot
+invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_binding"),
+                          drugs = c("DRUG1", "DRUG5"))
+```
 
 ###Correlation Plots  
 key function stuff  
@@ -50,7 +262,7 @@ key function stuff
 ####Mouse small plots probs/Correlation Plots:
 ####Beeswarm
   For the beeswarm plots and function, there were some problems that we faced that are important to note. It was not possible to use the data, as it was upon importing, to create small multiples. The `gather()` step in the function is an important step in particular, which modifies the dataframe to a format that allows for the creation of small multiples. 
-  Labeling in general became problematic because in many instances labels for the actual plots needed to be different or more specific than the variable names, which were minimized to an extent that would not be suitable for plot titles (i.e. PLA, SLU, huPPB, etc). This became a particular issue in the functions when markup language was used to format the spacing on the proper plot titles and was then required, as per the function code, to be typed as such in the variables statement input. The resolution to this problem was met by applying the minimized variable names to the variables statement and this is the reason why “variables_filtered” is found as a reference in the function instead of “variable”, as would be suspected. It can be noted that in both functions, a new column “variables_filtered” is created (lines        ). By creating this new column, we can conserve the formal plot titles without having to reference them exactly in the function statement. It should be recognized that a set up like this might only be ideal for those who have had time to develop an understanding of both the shorthand (dataframe) and longhand (plot title) versions of these independent variables. 
+  Labeling in general became problematic because in many instances labels for the actual plots needed to be different or more specific than the variable names, which were minimized to an extent that would not be suitable for plot titles (i.e. PLA, SLU, huPPB, etc). This became a particular issue in the functions when markup language was used to format the spacing on the proper plot titles and was then required, as per the function code, to be typed as such in the variables statement input. The resolution to this problem was met by applying the minimized variable names to the variables statement and this is the reason why “variable_filtered” is found as a reference in the function instead of “variable". It can be noted that in both functions, a new column “variable_filtered” is created. By creating this new column, we can conserve the formal plot titles without having to reference them exactly in the function statement. It should be recognized that a set up like this might only be ideal for those who have had time to develop an understanding of both the shorthand (dataframe) and longhand (plot title) versions of these independent variables. 
 	The beeswarm plots, when plotted with all of the possible data, can appear pretty busy. This problem was touched upon in the description of the function as one of the reasons why the function was built as it was. These functions play a significant part in mitigating this “busy” problem by incorporating tools that help make the plots more specific and customizable by the researchers and other potential users. 
 	One aspect that might be noticed about the beeswarm plots is that the classic beeswarm or violin shape isn’t prominent. This might be related to the quantity of data. Analyses using beeswarm across multiple studies over more time, that collect the same independent variable data, might demonstrate a more clear beeswarm shape. 
 
@@ -66,6 +278,4 @@ Aesthetics of ggdendrogram plots
  A future consideration for the beeswarm functions, in particular, would be including code that would plot blank small multiples for missing columns in a dataset. Also, it would be helpful to code a fix in the radio buttons for potential drug-name variation.  
 
 ###References 
-Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm: Categorical
-  Scatter (Violin Point) Plots. R package version 0.6.0.
-  https://CRAN.R-project.org/package=ggbeeswarm 
+Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm:Categorical Scatter (Violin Point) Plots. R package version 0.6.0. https://CRAN.R-project.org/package=ggbeeswarm 
