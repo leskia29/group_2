@@ -11,20 +11,27 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r mouse, fig.width = 8, fig.height = 8}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(tidyr)
+library(scales)
+library(plotly)
 library(ggmap)
 library(readxl)
 library(ggpolypath)
 library(viridis)
-library(dplyr)
-library(tidyr)
 source("../sampledata.R")
 
 #Read in drug data: ONLY FUNCTION-based ELEMENT
-efficacy_summary_modelling <- "asdfjklasdfjklasdfjkl"
-test_data <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/efficacy_summary.csv"))
+efficacy_summary_modelling <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/efficacy_summary.csv"))
 
-#Join drug data file to mouse model
-example_data <- test_data %>% 
+efficacy_summary_modelling_function <- function(efficacy_summary_modelling, variables = NULL, drugs = NULL) {
+
+efficacy_summary_modelling <- read_csv(efficacy_summary_modelling) 
+
+example_data <- efficacy_summary_modelling %>% 
   select(drug, dosage, dose_int, level, PLA, SLU, SLE) %>% 
   unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
   filter(level == "Cmax") %>% 
@@ -32,6 +39,59 @@ example_data <- test_data %>%
   mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE"),
                           labels = c("MOUSE", "LUNGS", "LESION")),
          ELEMENT = as.character(ELEMENT))
+
+mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>% 
+  left_join(example_data, by = "ELEMENT")
+  
+  if(!is.null(variables)) {
+    in_vivo_SM <- in_vivo_SM %>% 
+      dplyr::filter(variable_filtered %in% variables)
+  }
+  
+  if(!is.null(drugs)) {
+    in_vivo_SM <- in_vivo_SM %>%
+      dplyr::filter(Drugs %in% drugs)
+  }
+#Plot drug distribution, facetted by drug_dosing
+mouse_plot <- mouse %>% 
+  ggplot(aes(mapping = TRUE, x = X, y = Y, group = HOLE, 
+                         fill = concentration)) +
+  geom_polypath(rule = "evenodd") +
+  geom_path(colour = "black", size = .5) +
+  theme_void() +
+  theme(legend.position = 'right') +
+  labs(title = "Biodistribution by drug and dosage", 
+       subtitle = "For plasma, standard lung, and standard lesion concentrations", 
+       caption = paste("Source file: ", efficacy_summary_modelling)) + ##add path for text file name
+  coord_fixed()  +
+  scale_fill_viridis(option = "magma") + 
+  facet_wrap(~ drug_dosing)
+
+#ggplotly(mouse_plot)
+#return(ggplotly(mouse_plot))
+return((mouse_plot))
+  
+}
+
+efficacy_summary_modelling_function(efficacy_summary_modelling)
+
+
+#example selection
+invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ULU", "PLA"),
+                         drugs = c("DRUG1", "DRUG2"))
+
+
+
+```
+
+
+NEED TO BRING IN FUNCTION, and possibly nest with GGplots?
+
+
+
+
+```{r mouse model}
+#Join drug data file to mouse model
 
 mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>% 
   left_join(example_data, by = "ELEMENT")
@@ -51,12 +111,26 @@ ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE,
   scale_fill_viridis(option = "magma") + 
   facet_wrap(~ drug_dosing)
 
+example_data <- efficacy_summary_modelling %>% 
+  select(drug, dosage, dose_int, level, PLA, SLU, SLE) %>% 
+    rename(Drugs = "drug") %>% 
+  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
+  filter(level == "Cmax") %>% 
+  gather(PLA:SLE, key = "ELEMENT", value = concentration) %>% 
+  mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE"),
+                          labels = c("MOUSE", "LUNGS", "LESION")),
+         ELEMENT = as.character(ELEMENT)) %>% 
+    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
+  
+  
+ 
+
 ```
 
 
 ```{r lesion}
 #Join drug data file to lesion model
-example_data1 <- test_data %>% 
+example_data1 <- efficacy_summary_modelling %>% 
   select(drug, dosage, dose_int, level, ULU, RIM, OCS, ICS) %>% 
   unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
   filter(level == "Cmax") %>% 
