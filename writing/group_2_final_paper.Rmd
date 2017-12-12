@@ -47,6 +47,10 @@ library(tibble)
 library(dendextend)
 library(ggplot2)
 library(ggdendro)
+```
+
+```{r}
+
 
 efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/","master/CSV_Files/efficacy_summary.csv"))
 
@@ -267,16 +271,26 @@ invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_bindi
 ###Correlation Plots  
 key function stuff  
 
-###Hierarchial Clustering
+###Hierarchial Clustering   
+We named the dendrogram function we created `dendro_cluster` so that users would be able to easily remember what the function does which is create dendrograms based on clustering methods. The function is created to quickly create dendrograms using the independent variables to understand which variables are similar and clustered together. This function has two different categories or levels that the dendrogram can evaluate `by_test` which will display a cluster dendrogram that shows the similarities among the test or measurements within the tuberculosis data. We further designed the function to show `invitro` variables as red text, and `invivo` variables as blue text. This could help the researchers understand which test types are more effective and could be helpful in determining which tests are more cost-effective.  The function also allows the user to evaluate clustering patterns among by drug type with the code `by_test`. The output of the `dendro_cluster` function is either a plot with clustering by drug or by test whichever the user selects.  
+The inputs of the function are the function name `dendro_cluster` and then `df`= dataframe which was for the purpose of the project was the `efficacy summary` which is titled `input_data` . The user also must enter the category choice of either `by_test` or `by_drug`. If the user does not choose a category in the function the function will not run and will tell the user that argument category is missing from the function call.   
+
+The function is set up as the first part being `by_test`,  the function has an `else` statement so that if the user is not interested in the `by_test` plot the function goes to the `ELSE` statement and then identifies the `by_drug` and follows the code for that selection.  There is also a code within the `by_test` that evaluates if the test is `invitro` or `invivo` and colors the text accordingly if the test is `invitro` the text will be red if else it would be blue, with the else being `invivo`   
+
+In the shiny app, there will be a tab for dendrogram clustering or hierarchical clustering and the user can then choose which category they want to display either by test or by drug. The output for the shiny app is the selected plot.   
+
+See comment code below to understand in each line what is occurring at each step.
+
+
 ```{r}
-#superfxn <- function(category, variables =c("measurement"))
-#superfxn, by_test or by_category  
+#dendro_cluster <- function(category, variables =c("measurement"))
+#dendro_cluster, by_test or by_category  
 input_data<- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv")) 
-#superfux(df= input_data, category = "by_test" OR "drug")
+#dendro_cluster(df= input_data, category = "by_test" OR "drug")
 df = input_data
 category= "by_test"
-superfxn <- function(df, category) {
+dendro_cluster <- function(df, category) {
   #test_type <- ifelse(colnames(input_data) %in% 
                          #c("cLogP", "huPPB","muPPB", "MIC_Erdman", 
                            #"MICserumErd", "MIC_Rv","Caseum_binding", "MacUptake"), 1, 2) 
@@ -348,8 +362,11 @@ ggdendrogram(by_drug, rotate = TRUE, theme_dendro = TRUE) +
 
 ```{r}
 
-superfxn(df = input_data, category = "by_test")
-superfxn(df = input_data, category = "by_drug")
+dendro_cluster(df = input_data, category = "by_test")
+dendro_cluster(df = input_data, category = "by_drug")
+
+
+dendro_cluster(df = input_data)
 ```
 
 
