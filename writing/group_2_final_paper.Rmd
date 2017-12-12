@@ -364,9 +364,6 @@ ggdendrogram(by_drug, rotate = TRUE, theme_dendro = TRUE) +
 
 dendro_cluster(df = input_data, category = "by_test")
 dendro_cluster(df = input_data, category = "by_drug")
-
-
-dendro_cluster(df = input_data)
 ```
 
 
@@ -383,13 +380,15 @@ The beeswarm plots, when plotted with all of the possible data, can appear prett
 
 One aspect that might be noticed about the beeswarm plots is that the classic beeswarm or violin shape is not’t prominent. This might be related to the quantity of data. Analyses using beeswarm across multiple studies over more time, that collect the same independent variable data, might demonstrate a more clear beeswarm shape. 
 
-####ggdend:
-Aesthetics of ggdendrogram plots
+####ggdendrogram:
+The biggest challenged facced with the ggdenrogram package was manipulating the aesthetics of the plots to best represent out data. Our first challenge was playing with the axes, we wanted our dendrogram to be displayed as horizontal not vertical to make the labels easier to read. This took a little bit of research, but for both output plots we were able to make them display horizontally by using a `horiz = TRUE` statement. The next challenge took the longest to solve, but helped out plot tell an interesting story. We wanted our `by_test` plot to display which tests were invitro or invivo by color coding them. We understood how to group the data using basic R commands. But, we had a difficult time having these groupings display in our plots. We found that most of the color coding done in dendrograms is done by cluster and not by a specific element like test. In the end, we were able to color code the labels of the different nodes of whether they were invitro or invivo.
 
 ###Input Parameters/Potential Errors 
 While writing functions for each of our plots, we considered potential user error for our functions. One consideration, is dealing with data if there is missing data within the columns for each of our plots there may be limitations if there is missing data in an entire column. For example, the beeswarm functions will still run with existing "NA" values (they are excluded from the plot automatically) but if an entire column of data is missing, that would cause an error because the function would not be able to find an object it needs. It is also important to consider that our group used the format of the efficacy_summary data frame as the basis for the functions created. If another data frame is referenced instead, it could cause a number of errors. 
 
-Another issue we thought about is the number of rows within the data sets for future use. We considered if there as just one row versus 500 rows, if our code would run the same as it is now. Another consideration is how the radio buttons might discord with the drug labels. For example, in the beeswarm functions, the functions should still work if the drugs are called different names (as long as the column name containing the drug information stays the same) but the radio buttons in the Shiny App would require an adjustment. 
+Another issue we thought about is the number of rows within the data sets for future use. We considered if there as just one row versus 500 rows, if our code would run the same as it is now. Another consideration is how the radio buttons might discord with the drug labels. For example, in the beeswarm functions, the functions should still work if the drugs are called different names (as long as the column name containing the drug information stays the same) but the radio buttons in the Shiny App would require an adjustment.   
+
+A potential error for the dendrogram clustering specifically, is if the user does not include a category the function will not work. However, this would not be a relevant issue in the shiny app, because they don't have to input a category they just need to chose which category they want.
 
 ###Future Considerations 
 Some of the next steps in general, which touch upon all of our specific analyses, that were considered included being able to customize and manipulate the labels. We might also want to add descriptions of the different tests or measurements using plotly so the user can understand what the different measurements or tests are indicating about the TB drug. We also thought it might be useful to incorporate a one-click export to PDF feature for the plots, in order to save specific, useful outputs. Another thought was that it would be beneficial to include control data, to further clarify the relationship between the independent variables and the drugs. In addition to controls, it would be interesting to consider how to incorporate Cmax and Trough data into these functions and the use of combined-drug data that might be found in some TB drug trials. 
@@ -397,4 +396,13 @@ Some of the next steps in general, which touch upon all of our specific analyses
 A future consideration for the beeswarm functions, in particular, would be including code that would plot blank small multiples for missing columns in a data set. Also, it would be helpful to code a fix in the radio buttons for potential drug-name variation.  
 
 ###References 
-Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm:Categorical Scatter (Violin Point) Plots. R package version 0.6.0. https://CRAN.R-project.org/package=ggbeeswarm 
+Andrie de Vries and Brian D. Ripley (2016). ggdendro: Create Dendrograms and Tree
+  	Diagrams Using 'ggplot2'. R package version 0.1-20.
+  	https://CRAN.R-project.org/package=ggdendro   
+
+Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm: Categorical
+  	Scatter (Violin Point) Plots. R package version 0.6.0.
+  	https://CRAN.R-project.org/package=ggbeeswarm   
+
+Thomas Lin Pedersen (2017). ggraph: An Implementation of Grammar of Graphics for Graphs
+  and Networks. R package version 1.0.0. https://CRAN.R-project.org/package=ggraph   
