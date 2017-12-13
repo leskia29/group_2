@@ -33,7 +33,7 @@ This group pushed forward with all the analyses initially proposed from the expl
 ####Beeswarm Coding Methods and Plots 
   For the beeswarm plots the data was split up between invivo and invitro independent variables. The code below is the basis for the output of the functions described later and all the packages needed are listed. The code for both invivo and invitro is logistically the same and there are several key components in the code which are worth noting their purpose. The `unite()`, `gather()`, and `mutate()` have comments next to them describing their importance. Within the code that creates the plots of the data, there are also comments describing the key components of this process. 
 
-```{r fig.width=7.5}
+```{r }
 library(dplyr)
 library(readr)
 library(ggplot2)
@@ -44,12 +44,7 @@ library(scales)
 library(plotly)
 library(ggraph)
 library(tibble)
-library(dendextend)
-library(ggplot2)
-library(ggdendro)
-```
 
-```{r}
 
 
 efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/","master/CSV_Files/efficacy_summary.csv"))
@@ -271,7 +266,9 @@ invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_bindi
 ###Correlation Plots  
 key function stuff  
 
-###Hierarchial Clustering   
+
+
+###Hierarchial Clustering Function
 We named the dendrogram function we created `dendro_cluster` so that users would be able to easily remember what the function does which is create dendrograms based on clustering methods. The function is created to quickly create dendrograms using the independent variables to understand which variables are similar and clustered together. This function has two different categories or levels that the dendrogram can evaluate `by_test` which will display a cluster dendrogram that shows the similarities among the test or measurements within the tuberculosis data. We further designed the function to show `invitro` variables as red text, and `invivo` variables as blue text. This could help the researchers understand which test types are more effective and could be helpful in determining which tests are more cost-effective.  The function also allows the user to evaluate clustering patterns among by drug type with the code `by_test`. The output of the `dendro_cluster` function is either a plot with clustering by drug or by test whichever the user selects.  
 The inputs of the function are the function name `dendro_cluster` and then `df`= dataframe which was for the purpose of the project was the `efficacy summary` which is titled `input_data` . The user also must enter the category choice of either `by_test` or `by_drug`. If the user does not choose a category in the function the function will not run and will tell the user that argument category is missing from the function call.   
 
@@ -282,7 +279,17 @@ In the shiny app, there will be a tab for dendrogram clustering or hierarchical 
 See comment code below to understand in each line what is occurring at each step.
 
 
-```{r}
+```{r fig.height = 6, fig.width = 6}
+
+library(readr)
+library(dplyr)
+library(ggraph)
+library(ggthemes)
+library(tibble)
+library(dendextend)
+library(ggplot2)
+library(ggdendro)
+
 #dendro_cluster <- function(category, variables =c("measurement"))
 #dendro_cluster, by_test or by_category  
 input_data<- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
@@ -352,7 +359,7 @@ dendro_cluster <- function(df, category) {
     hclust() %>%  #can change method 
     as.dendrogram(horiz = TRUE, hang = .1) 
 ggdendrogram(by_drug, rotate = TRUE, theme_dendro = TRUE) +
-    labs(title = "Comparison by drug, dose, dose-int, and level") +
+    labs(title = "Comparison by drug and dose") +
     theme(axis.title.x = element_blank(),
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank())
