@@ -1,8 +1,8 @@
 ##Functions
+##libraries necessary for function to work properly
 library(readr)
 library(dplyr)
 library(ggraph)
-#library(factoextra)
 library(ggthemes)
 library(tibble)
 library(dendextend)
@@ -10,11 +10,11 @@ library(ggplot2)
 library(ggdendro)
 
 ##############################by measurement###############################################
-#superfxn <- function(category, variables =c("measurement"))
-#superfxn, by_test or by_category  
+#dendro_cluster <- function(category, variables =c("measurement"))
+#dendro_cluster, by_test or by_category  
 input_data<- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/",
                              "master/CSV_Files/efficacy_summary.csv")) 
-#superfux(df= input_data, category = "by_test" OR "drug")
+#dendro_cluster(df= input_data, category = "by_test" OR "drug")
 df = input_data
 category= "by_test"
 superfxn <- function(df, category) {
@@ -86,5 +86,5 @@ ggdendrogram(by_drug, rotate = TRUE, theme_dendro = TRUE) +
     
    } }
 
-superfxn(df = input_data, category = "by_test")
-superfxn(df = input_data, category = "by_drug")
+dendro_cluster(df = input_data, category = "by_test")
+dendro_cluster(df = input_data, category = "by_drug")
