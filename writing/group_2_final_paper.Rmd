@@ -15,13 +15,13 @@ This project investigates the independent variables from *Mycobacterium tubercul
 
 For each type of plot the goal was to help the researchers understand the connections between the different independent variables based on their data. As a group, we explored three different packages that would assist the researchers in understanding the independent data, these include ggbeeswarm for the beeswarm plots, ggcorplot and ggpolypath for the correlation plots, and ggdend for the dendrograms that represent hierarchical clustering.
 
-Beeswarm plots were made using the R package called ggbeeswarm (Clarke & Sherrill-Mix, 2017). A beeswarm plot, also commonly known as a “violin plot”, allows multiple groups of one dimensional data to be plotted in a way that is more representative of the underlying “distribution” of the data, it also helps prevent overlapping of data points that you see in more common types of plots. In this case, it helps to show a pattern of distribution of TB drugs, according to the dosage-interval of the drug given and according to the resulting quantities of drug found in different measurements of mouse/human factors.   
+Beeswarm plots were made using the R package called ggbeeswarm (Clarke & Sherrill-Mix, 2017). A beeswarm plot, also commonly known as a “violin plot”, allows multiple groups of one dimensional data to be plotted in a way that is more representative of the underlying “distribution” of the data, it also helps prevent overlapping of data points that you see in other types of plots. In this case, it helps to show a pattern of distribution of TB drugs, according to the dosage-interval of the drug given and according to the resulting quantities of drug found in different measurements of mouse/human factors.   
 
 Hierarchical clustering plots were made using the ggdendro package in R. (Vries & Ripley, 2016). There are many different variations of hierarchical clustering of independent data. Some of the ways we investigated displaying the clusters included different geom_edge layouts from the ggraph package (Pederson, 2017). Some of the layouts that were considered were elbow, diagonal, and 2-variant. We determined that the elbow geom_edge was the best layout, and those graphs inspired us to look into dendrograms which was the final clustering plot we chose.  Dendrograms provide a visual using the nodes to identify which variables (either by drug and dose or by measurement) are the most similar by placing them on the same nodes. 
   
 **Add quick summaries about other plots here**   
   
-This group pushed forward with all the analyses initially proposed from the exploration stage; however, the biggest challenges were in attempting to understand the methodology of the different packages. Many of these packages use techniques that were, at times, more advanced than our R skills. These challenges were addressed using stack overflow and vignettes for the packages to see examples of how they are used. 
+This group pushed forward with all the analyses initially proposed from the exploration stage; however, the biggest challenges were in attempting to understand the methodology of the different packages. Many of these packages use techniques that were, at times, more advanced than our R skills. These challenges were addressed using stack overflow and vignettes for the packages to see examples of how they are used ("Stack Overflow - Where Developers Learn, Share, & Build Careers", 2017). 
 
 *Describe the different ideas your group explored. What were the biggest challenges in this stage? For any ideas that didn’t pan out, what were the key constraints? Also describe how you would tackle this problem if you were starting over.*
   
@@ -30,10 +30,23 @@ This group pushed forward with all the analyses initially proposed from the expl
 
 
 ###Beeswarm   
-####Beeswarm Coding Methods and Plots 
-  For the beeswarm plots the data was split up between invivo and invitro independent variables. The code below is the basis for the output of the functions described later and all the packages needed are listed. The code for both invivo and invitro is logistically the same and there are several key components in the code which are worth noting their purpose. The `unite()`, `gather()`, and `mutate()` have comments next to them describing their importance. Within the code that creates the plots of the data, there are also comments describing the key components of this process. 
 
-```{r }
+####Beeswarm Coding Methods
+  For the beeswarm plots the data was split up between invivo and invitro independent variables. The code for both invivo and invitro is logistically the same and there are several key components in the code which are worth noting. The `unite()`, `gather()`, and `mutate()` have comments next to them describing their importance. Please see comment code describing the key components of this process within the functions. 
+
+####Beeswarm Functions
+The beeswarm functions called `invivo_beeswarm_function()` and `invitro_beeswarm_function()` follow suit with the division of the independent variables between invivo and invitro. The functions are built to produce visual outputs. The two functions operate with almost identical logistics in terms of the code, so the following is an explanation of the main concepts used to design and build both functions. 
+
+One goal of the functions is to allow the researchers to plot all of the independent variable data quickly and efficiently. Another goal of the functions is to provide the researchers with the power to control which data they want to visualize and/or compare across all of the independent variables measured. There are particular parts of the function code that accomplish these goals. By setting the statements for variables and drugs to NULL, it tells the function to produce plots of all the variables and drugs *unless* otherwise specified. If the researcher inputs `invivo_beeswarm_function(efficacy_summary)` then all the small multiple plots and all the drugs will be returned. 
+
+The following *if* statements in the function are what direct the function in that "unless otherwise" specified situation. When the variables statement or drugs statement is *not* null, the function tells it to filter the variables or drugs as requested in the input from the “variable_filtered” or “Drugs” columns of data. As an example, if the researcher types specific variables or drugs they want to plot together, then the function will plot only what they ask it to. If you are wondering how the “variable_filtered” differs exactly from the “variables”, this aspect is explained in detail below, under the topic “Problems We Faced”. 
+
+The beeswarm functions were designed with these capabilities following discussion with the researchers who provided/and are familiar with the independent variable data. Because all of the data together can be quite overwhelming to look at, it became clear that the researchers were interested in the ability to separate out the plots as much as possible so comparisons of specific variables and drugs can be explored upon their discretion. 
+
+The beeswarm functions employ `plotly` and `ggplotly()` in particular to add an interactive element to the plots, however the code lines for this needed to be left out of this write up in order for Markdown to knit this document. This is a key component of the code that was given to the group working on building the Shiny App, which allowed the final plots built in the app to have detailed descriptions appear when the mouse is placed over any point in any of the small multiple plots. The Shiny App group also contributed to the creation of radio (check) buttons to go along with these functions, which ultimately allow the researchers to make selections of specific variables and drugs to compare within the Shiny interface.
+
+```{r}
+#call the following libraries prior to running code 
 library(dplyr)
 library(readr)
 library(ggplot2)
@@ -42,89 +55,8 @@ library(ggthemes)
 library(tidyr)
 library(scales)
 library(plotly)
-library(ggraph)
-library(tibble)
-
-
-
-efficacy_summary <- read_csv(paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/","master/CSV_Files/efficacy_summary.csv"))
-
-#select for in-vivo marker variables
-in_vivo <- efficacy_summary %>%
-  select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
-  rename(Drugs = "drug") %>% 
-  unite(dosage_interval, dosage:dose_int, sep = "") #brings together dosage (50 & 100) with intervals (BID & QD) 
-
-head(in_vivo)
-
-#gather for small multiples in-vivo markers
-in_vivo_SM <- in_vivo %>% 
-  gather(key = variable, value = value, -Drugs, -dosage_interval) %>% #allows us to make small multiples by combining all the values into one column and the variable they belong to in another column 
-  mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
-                           labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung", "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
-  mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD"))) #prevents the numeric scaling of the x axis values, so it spaces it like two factors in the order given above
-
-head(in_vivo_SM)
-
-#plot small multiples in-vivo markers 
-in_vivo_SMplot <- in_vivo_SM %>% 
-  ggplot(aes(x = dosage_interval, y = value, color = Drugs))+ #main structure of x & y axis
-  geom_beeswarm(alpha = 0.5, size = 1.5)+ #incorporates beeswarm plot style 
-  scale_y_log10()+ #log scale, used for the invivo group to cover wide range of values 
-  labs(x = 'Dosage-Interval', y = 'Value')+ 
-  ggtitle('In-Vivo Distribution of TB Drugs')+ 
-  theme_few()+
-  facet_wrap(~ variable, ncol = 4) #creates small multiples by variable 
-
-in_vivo_SMplot 
-
-#####################################################################
-
-#select for in-vitro marker variables
-in_vitro <- efficacy_summary %>%
-  select(drug, dosage, dose_int, cLogP, huPPB, muPPB, 
-         MIC_Erdman, MICserumErd, MIC_Rv, Caseum_binding, MacUptake) %>%
-  rename(Drugs = "drug") %>% 
-  unite(dosage_interval, dosage:dose_int, sep = "")
-
-head(in_vitro)
-
-#gather for small multiples in-vitro markers
-in_vitro_SM <- in_vitro %>% 
-  gather(key = variable, value = value, -Drugs, -dosage_interval) %>% 
-  mutate(variable = factor(variable, levels = c("Caseum_binding", "cLogP", "huPPB", "muPPB", "MIC_Erdman", "MICserumErd", "MIC_Rv", "MacUptake"),
-                           labels = c("Caseum \nBinding", "cLogP", 
-                                      "Human \nPlasma \nBinding", "Mouse \nPlasma \nBinding", 
-                                      "MIC Erdman \nStrain", "MIC Erdman \nStrain \nwith Serum", "MIC Rv Strain",
-                                      "Macrophage \nUptake (Ratio)"))) %>% 
-  mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
-
-head(in_vitro_SM) 
-
-#plot small multiples in-vitro markers 
-in_vitro_SMplot <- in_vitro_SM %>% 
-  ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
-  geom_beeswarm(alpha = 0.5, size = 1.5)+
-  labs(x = 'Dosage-Interval', y = 'Value')+
-  ggtitle('In-Vitro Distribution of TB Drugs')+
-  theme_few()+
-  facet_wrap(~ variable, ncol = 4, scale="free") #scale free = each plot to have different y axis scales, as seen fit 
-
-in_vitro_SMplot
 ```
 
-####Beeswarm Functions
-
-The beeswarm functions called `invivo_beeswarm_function()` and `invitro_beeswarm_function()` follow suit with the division of the independent variables between invivo and invitro. The functions are built to produce visual outputs for both. The two functions operate with almost identical logistics in terms of the code, so the following is an explanation of the main concepts used to design and build both functions. 
-
-One goal of the functions is to allow the researchers to plot all of the independent variable data quickly and efficiently. Another goal of the functions is to provide the researchers with the power to control which data they want to visualize and/or compare across all of the independent variables measured. There are particular parts of the function code that accomplish these goals. By setting the statements for variables and drugs to NULL, it tells the function to produce plots of all the variables and drugs *unless* otherwise specified. If the researcher inputs `invivo_beeswarm_function(efficacy_summary)` then all the small multiple plots and all the drugs will be returned. 
-
-The following *if* statements in the function are what direct the function in that "unless otherwise" specified situation. When the variables statement or drugs statement is *not* null, the function tells it to filter the variables or drugs as requested in the input from the “variable_filtered” or “Drugs” columns of data. As an example, if the researcher types specific variables or drugs they want to plot together, then the function will plot only what they ask it to. If you are wondering how the “variable_filtered” differs exactly from the “variables”, this aspect is explained in detail below, under the topic “Problems We Faced”. 
-
-The beeswarm functions were designed with these capabilities following discussion with the researchers who provided/and are familiar with the independent variable data. Because all of the data together can be quite overwhelming to look at, it became clear that the researchers were interested in the ability to separate out the plots as much as possible so comparisons of specific variables and drugs can be explored upon their discretion. 
-
-The beeswarm functions employ `plotly` and `ggplotly()` in particular to add an interactive element to the plots, however the code lines for this needed to be left out of this write up in order for Markdown to knit this document. This is a key component of the code that was given to the group working on building the Shiny App, which allowed the final plots built in the app to have detailed descriptions appear when the mouse was placed over any point in any of the small multiple plots. The Shiny App group also contributed to the creation of radio (check) buttons to go along with my functions, which ultimately allow the researchers to make selections of specific variables and drugs within the Shiny interface.
-  
 ```{r fig.width=7.5}
 #invivo function
 
@@ -151,15 +83,15 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
   in_vivo <- efficacy_summary %>%
     select(drug, dosage, dose_int, PLA, ULU, RIM, OCS, ICS, SLU, SLE) %>% 
     rename(Drugs = "drug") %>% 
-    unite(dosage_interval, dosage:dose_int, sep = "")
+    unite(dosage_interval, dosage:dose_int, sep = "") #brings together dosage (50 & 100) with intervals (BID & QD)
   
   in_vivo_SM <- in_vivo %>% 
-    gather(key = variable, value = value, -Drugs, -dosage_interval) %>%
+    gather(key = variable, value = value, -Drugs, -dosage_interval) %>% #allows us to make small multiples by combining all the values into one column and the variable they belong to in another column
     mutate(variable_filtered = variable) %>% #explained in more detail in "Problems We Faced"
     mutate(variable = factor(variable, levels = c("RIM", "OCS","ICS","ULU","SLU","SLE","PLA"),
                              labels = c("Rim (of lesion)","Outer Caseum","Inner Caseum","Uninvolved Lung",
                                         "Standard Lung", "Standard Lesion", "Plasma"))) %>% 
-    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD")))
+    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID","100QD"))) #prevents the numeric scaling of the x axis values, so it spaces it like two factors in the order given
   
   
   if(!is.null(variables)) {
@@ -173,13 +105,13 @@ invivo_beeswarm_function <- function(efficacy_summary, variables = NULL, drugs =
   }
   
   in_vivo_SMplot <- in_vivo_SM %>% 
-    ggplot(aes(x = dosage_interval, y = value, color = Drugs))+
-    geom_beeswarm(alpha = 0.5, size = 1.5)+
-    scale_y_log10()+
+    ggplot(aes(x = dosage_interval, y = value, color = Drugs))+ #main structure of x & y axis
+    geom_beeswarm(alpha = 0.5, size = 1.5)+ #incorporates beeswarm plot style
+    scale_y_log10()+ #log scale, used for the invivo group to cover wide range of values
     labs(x = 'Dosage-Interval', y = 'Value')+
     ggtitle('In-Vivo Distribution of TB Drugs')+
     theme_few()+
-    facet_wrap(~ variable, ncol = 4)
+    facet_wrap(~ variable, ncol = 4) #creates small multiples by variable
   
   return(in_vivo_SMplot)
   
@@ -269,15 +201,15 @@ key function stuff
 
 
 ###Hierarchial Clustering Function
-We named the dendrogram function we created `dendro_cluster` so that users would be able to easily remember what the function does which is create dendrograms based on clustering methods. The function is created to quickly create dendrograms using the independent variables to understand which variables are similar and clustered together. This function has two different categories or levels that the dendrogram can evaluate `by_test` which will display a cluster dendrogram that shows the similarities among the test or measurements within the tuberculosis data. We further designed the function to show `invitro` variables as red text, and `invivo` variables as blue text. This could help the researchers understand which test types are more effective and could be helpful in determining which tests are more cost-effective.  The function also allows the user to evaluate clustering patterns among by drug type with the code `by_test`. The output of the `dendro_cluster` function is either a plot with clustering by drug or by test whichever the user selects.  
-The inputs of the function are the function name `dendro_cluster` and then `df`= dataframe which was for the purpose of the project was the `efficacy summary` which is titled `input_data` . The user also must enter the category choice of either `by_test` or `by_drug`. If the user does not choose a category in the function the function will not run and will tell the user that argument category is missing from the function call.   
+We named the dendrogram function we created `dendro_cluster` so that users would be able to easily remember what the function does which is create dendrograms based on clustering methods. The function is created to quickly create dendrograms using the independent variables to understand which variables are similar and clustered together. This function has two different categories or levels that the dendrogram can evaluate `by_test` which will display a cluster dendrogram that shows the similarities among the test or measurements within the tuberculosis data. We further designed the function to show `invitro` variables as red text, and `invivo` variables as blue text. This could help the researchers understand which test types are more effective and could be helpful in determining which tests are more cost-effective.  The function also allows the user to evaluate clustering patterns among by drug type with the code `by_test`. The output of the `dendro_cluster` function is either a plot with clustering by drug or by test whichever the user selects. 
+
+The inputs of the function are the function name `dendro_cluster` and then `df`= data frame which was for the purpose of the project was the `efficacy summary` which is titled `input_data` . The user also must enter the category choice of either `by_test` or `by_drug`. If the user does not choose a category in the function the function will not run and will tell the user that argument category is missing from the function call.   
 
 The function is set up as the first part being `by_test`,  the function has an `else` statement so that if the user is not interested in the `by_test` plot the function goes to the `ELSE` statement and then identifies the `by_drug` and follows the code for that selection.  There is also a code within the `by_test` that evaluates if the test is `invitro` or `invivo` and colors the text accordingly if the test is `invitro` the text will be red if else it would be blue, with the else being `invivo`   
 
 In the shiny app, there will be a tab for dendrogram clustering or hierarchical clustering and the user can then choose which category they want to display either by test or by drug. The output for the shiny app is the selected plot.   
 
 See comment code below to understand in each line what is occurring at each step.
-
 
 ```{r fig.height = 6, fig.width = 6}
 
@@ -373,11 +305,10 @@ dendro_cluster(df = input_data, category = "by_test")
 dendro_cluster(df = input_data, category = "by_drug")
 ```
 
-
-
-
 ###Problems We Faced
-####Mouse small plots probs/Correlation Plots:
+
+####Mouse small plots probs/Correlation Plots
+
 ####Beeswarm
 For the beeswarm plots and function, there were some problems that we faced that are important to note. It was not possible to use the data, as it was upon importing, to create small multiples. The `gather()` step in the function is an important step in particular, which modifies the data frame to a format that allows for the creation of small multiples. 
 
@@ -385,10 +316,10 @@ Labeling in general became problematic because in many instances labels for the 
 
 The beeswarm plots, when plotted with all of the possible data, can appear pretty busy. This problem was touched upon in the description of the function as one of the reasons why the function was built as it was. These functions play a significant part in mitigating this “busy” problem by incorporating tools that help make the plots more specific and customizable by the researchers and other potential users. 
 
-One aspect that might be noticed about the beeswarm plots is that the classic beeswarm or violin shape is not’t prominent. This might be related to the quantity of data. Analyses using beeswarm across multiple studies over more time, that collect the same independent variable data, might demonstrate a more clear beeswarm shape. 
+One aspect that might be noticed about the beeswarm plots is that the classic beeswarm or violin shape is not prominent. This might be related to the quantity of data. Analyses using beeswarm across multiple studies over more time, that collect the same independent variable data, might demonstrate a more clear beeswarm shape. 
 
-####ggdendrogram:
-The biggest challenged facced with the ggdenrogram package was manipulating the aesthetics of the plots to best represent out data. Our first challenge was playing with the axes, we wanted our dendrogram to be displayed as horizontal not vertical to make the labels easier to read. This took a little bit of research, but for both output plots we were able to make them display horizontally by using a `horiz = TRUE` statement. The next challenge took the longest to solve, but helped out plot tell an interesting story. We wanted our `by_test` plot to display which tests were invitro or invivo by color coding them. We understood how to group the data using basic R commands. But, we had a difficult time having these groupings display in our plots. We found that most of the color coding done in dendrograms is done by cluster and not by a specific element like test. In the end, we were able to color code the labels of the different nodes of whether they were invitro or invivo.
+####ggdendrogram
+The biggest challenge faced with the ggdendrogram package was manipulating the aesthetics of the plots to best represent our data. Our first challenge was playing with the axes, we wanted our dendrogram to be displayed horizontally not vertically to make the labels easier to read. This took a little bit of research, but for both output plots we were able to make them display horizontally by using a `horiz = TRUE` statement. The next challenge took the longest to solve, but helped out plot tell an interesting story. We wanted our `by_test` plot to display which tests were invitro or invivo by color coding them. We understood how to group the data using basic R commands. But, we had a difficult time having these groupings display in our plots. We found that most of the color coding done in dendrograms is done by cluster and not by a specific element like test. In the end, we were able to color code the labels of the different nodes of whether they were invitro or invivo.
 
 ###Input Parameters/Potential Errors 
 While writing functions for each of our plots, we considered potential user error for our functions. One consideration, is dealing with data if there is missing data within the columns for each of our plots there may be limitations if there is missing data in an entire column. For example, the beeswarm functions will still run with existing "NA" values (they are excluded from the plot automatically) but if an entire column of data is missing, that would cause an error because the function would not be able to find an object it needs. It is also important to consider that our group used the format of the efficacy_summary data frame as the basis for the functions created. If another data frame is referenced instead, it could cause a number of errors. 
@@ -403,13 +334,17 @@ Some of the next steps in general, which touch upon all of our specific analyses
 A future consideration for the beeswarm functions, in particular, would be including code that would plot blank small multiples for missing columns in a data set. Also, it would be helpful to code a fix in the radio buttons for potential drug-name variation.  
 
 ###References 
-Andrie de Vries and Brian D. Ripley (2016). ggdendro: Create Dendrograms and Tree
+Andrie de Vries and Brian D. Ripley (2016). ggdendro: Create Dendrograms      and Tree
   	Diagrams Using 'ggplot2'. R package version 0.1-20.
   	https://CRAN.R-project.org/package=ggdendro   
 
 Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm: Categorical
   	Scatter (Violin Point) Plots. R package version 0.6.0.
   	https://CRAN.R-project.org/package=ggbeeswarm   
+  	
+Stack Overflow - Where Developers Learn, Share, & Build Careers. (2017).      Stackoverflow.com. Retrieved 14 December 2017, from
+    https://stackoverflow.com/ 
 
-Thomas Lin Pedersen (2017). ggraph: An Implementation of Grammar of Graphics for Graphs
-  and Networks. R package version 1.0.0. https://CRAN.R-project.org/package=ggraph   
+Thomas Lin Pedersen (2017). ggraph: An Implementation of Grammar of           Graphics for Graphs
+    and Networks. R package version 1.0.0.
+    https://CRAN.R-project.org/package=ggraph 
