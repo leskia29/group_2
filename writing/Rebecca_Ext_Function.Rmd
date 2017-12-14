@@ -21,6 +21,7 @@ library(plotly)
 library(ggmap)
 library(readxl)
 library(ggpolypath)
+library(ggcorrplot)
 library(viridis)
 source("../sampledata.R")
 
@@ -44,12 +45,12 @@ mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>%
   left_join(example_data, by = "ELEMENT")
   
   if(!is.null(variables)) {
-    in_vivo_SM <- in_vivo_SM %>% 
+      mouse <- mouse %>% 
       dplyr::filter(variable_filtered %in% variables)
   }
   
   if(!is.null(drugs)) {
-    in_vivo_SM <- in_vivo_SM %>%
+    mouse <- mouse %>%
       dplyr::filter(Drugs %in% drugs)
   }
 #Plot drug distribution, facetted by drug_dosing
@@ -77,9 +78,8 @@ efficacy_summary_modelling_function(efficacy_summary_modelling)
 
 
 #example selection
-invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ULU", "PLA"),
+#invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ULU", "PLA"),
                          drugs = c("DRUG1", "DRUG2"))
-
 
 
 ```
@@ -155,3 +155,21 @@ ggplot(data =lesion, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = conc
   scale_fill_viridis(option = "magma") + 
   facet_wrap(~ drug_dosing)
 ```
+
+```{r corrplot}
+
+#Read in drug data: ONLY FUNCTION-based ELEMENT
+efficacy_drugs <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/clean_efficacy.csv"))
+
+efficacy_drugs <- read_csv(efficacy_drugs)
+efficacy_drugs <- efficacy_drugs %>% 
+  select(Group, dosage, days_treatment, lung_efficacy_log) 
+
+corr <- cor(efficacy_drugs[sapply(efficacy_drugs, is.numeric)], y = NULL, use = "everything",
+    method = "spearman")
+
+corr
+
+
+```
+
