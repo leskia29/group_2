@@ -28,48 +28,41 @@ source("../sampledata.R")
 #Read in drug data: ONLY FUNCTION-based ELEMENT
 efficacy_summary_modelling <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/efficacy_summary.csv"))
 
-efficacy_summary_modelling_function <- function(efficacy_summary_modelling, variables = NULL, drugs = NULL) {
+efficacy_summary_modelling_function <- function(efficacy_summary_modelling) {
 
 efficacy_summary_modelling <- read_csv(efficacy_summary_modelling) 
 
 example_data <- efficacy_summary_modelling %>% 
-  select(drug, dosage, dose_int, level, PLA, SLU, SLE) %>% 
-  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
+  select(drug, dosage, level, PLA, SLU, SLE, ULU, RIM, OCS, ICS) %>% 
+  unite(drug_dosing, drug, dosage, sep = "-") %>% 
   filter(level == "Cmax") %>% 
-  gather(PLA:SLE, key = "ELEMENT", value = concentration) %>% 
-  mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE"),
-                          labels = c("MOUSE", "LUNGS", "LESION")),
+  gather(PLA:ICS, key = "ELEMENT", value = concentration) %>% 
+  mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE", "ULU", "RIM", "OCS", "ICS"),
+                          labels = c("PLA", "SLU", "SLE", "ULU", "RIM", "OCS", "ICS")),
          ELEMENT = as.character(ELEMENT))
 
-mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>% 
+mouse <- read_excel('../sample_data/ModelCoord.xlsx') %>% 
   left_join(example_data, by = "ELEMENT")
+
   
-  if(!is.null(variables)) {
-      mouse <- mouse %>% 
-      dplyr::filter(variable_filtered %in% variables)
-  }
-  
-  if(!is.null(drugs)) {
-    mouse <- mouse %>%
-      dplyr::filter(Drugs %in% drugs)
-  }
 #Plot drug distribution, facetted by drug_dosing
 mouse_plot <- mouse %>% 
   ggplot(aes(mapping = TRUE, x = X, y = Y, group = HOLE, 
                          fill = concentration)) +
   geom_polypath(rule = "evenodd") +
   geom_path(colour = "black", size = .5) +
+  geom_segment(x=-6, y=-2, xend=-28, yend=12) +
+  geom_segment(x=-6, y=-4, xend=-28, yend=-12) +
   theme_void() +
   theme(legend.position = 'right') +
   labs(title = "Biodistribution by drug and dosage", 
-       subtitle = "For plasma, standard lung, and standard lesion concentrations", 
-       caption = paste("Source file: ", efficacy_summary_modelling)) + ##add path for text file name
+       subtitle = "For plasma (mouse), standard lung (lungs), standard lesion (small lesion), uninvolved lung \n(box inset), lesion rim (inset), outer caseum (inset) and inner caseum (inset) concentrations", 
+       caption = paste("prepared ", Sys.Date() )) + 
   coord_fixed()  +
   scale_fill_viridis(option = "magma") + 
   facet_wrap(~ drug_dosing)
 
-#ggplotly(mouse_plot)
-#return(ggplotly(mouse_plot))
+
 return((mouse_plot))
   
 }
@@ -77,98 +70,7 @@ return((mouse_plot))
 efficacy_summary_modelling_function(efficacy_summary_modelling)
 
 
-#example selection
-#invivo_beeswarm_function(efficacy_summary, variables = c("RIM", "OCS", "ULU", "PLA"),
-                         drugs = c("DRUG1", "DRUG2"))
 
-
-```
-
-
-NEED TO BRING IN FUNCTION, and possibly nest with GGplots?
-
-
-
-
-```{r mouse model}
-#Join drug data file to mouse model
-
-mouse <- read_excel('../sample_data/MouseCoord.xlsx') %>% 
-  left_join(example_data, by = "ELEMENT")
-
-
-#Plot drug distribution, facetted by drug_dosing
-ggplot(data = mouse, aes(mapping = TRUE, x = X, y = Y, group = HOLE, 
-                         fill = concentration)) +
-  geom_polypath(rule = "evenodd") +
-  geom_path(colour = "black", size = .5) +
-  theme_void() +
-  theme(legend.position = 'right') +
-  labs(title = "Biodistribution by drug and dosage", 
-       subtitle = "For plasma, standard lung, and standard lesion concentrations", 
-       caption = paste("Source file: ", efficacy_summary_modelling)) + ##add path for text file name
-  coord_fixed()  +
-  scale_fill_viridis(option = "magma") + 
-  facet_wrap(~ drug_dosing)
-
-example_data <- efficacy_summary_modelling %>% 
-  select(drug, dosage, dose_int, level, PLA, SLU, SLE) %>% 
-    rename(Drugs = "drug") %>% 
-  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
-  filter(level == "Cmax") %>% 
-  gather(PLA:SLE, key = "ELEMENT", value = concentration) %>% 
-  mutate(ELEMENT = factor(ELEMENT, levels = c("PLA", "SLU", "SLE"),
-                          labels = c("MOUSE", "LUNGS", "LESION")),
-         ELEMENT = as.character(ELEMENT)) %>% 
-    mutate(dosage_interval = factor(dosage_interval, levels = c("50BID", "100QD")))
-  
-  
- 
-
-```
-
-
-```{r lesion}
-#Join drug data file to lesion model
-example_data1 <- efficacy_summary_modelling %>% 
-  select(drug, dosage, dose_int, level, ULU, RIM, OCS, ICS) %>% 
-  unite(drug_dosing, drug, dosage, dose_int, sep = "-") %>% 
-  filter(level == "Cmax") %>% 
-  gather(ULU:ICS, key = "AREA", value = concentration) %>% 
-  mutate(AREA = factor(AREA, levels = c("ULU", "RIM", "OCS", "ICS"),
-                          labels = c("LUNG", "RIM", "OUTER", "INNER")),
-         AREA = as.character(AREA))
-
-lesion <- read_excel('../sample_data/LesionCoord.xlsx') %>% 
-  left_join(example_data1, by = "AREA")
-
-#Plot drug distribution, facetted by drug_dosing
-ggplot(data =lesion, aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = concentration)) +
-  geom_polypath(rule = "evenodd") +
-  geom_path(colour = "black", size = .5) +
-  theme_void() +
-  theme(legend.position = 'right') +
-  labs(title = "Biodistribution by drug and dosage", 
-       subtitle = "For uninvolved lung, rim (of lesion), outer caseum, and inner caseum concentrations", 
-       caption = paste("Source file: ", efficacy_summary_modelling)) + ##add path for text file name
-  coord_fixed()  +
-  scale_fill_viridis(option = "magma") + 
-  facet_wrap(~ drug_dosing)
-```
-
-```{r corrplot}
-
-#Read in drug data: ONLY FUNCTION-based ELEMENT
-efficacy_drugs <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/clean_efficacy.csv"))
-
-efficacy_drugs <- read_csv(efficacy_drugs)
-efficacy_drugs <- efficacy_drugs %>% 
-  select(Group, dosage, days_treatment, lung_efficacy_log) 
-
-corr <- cor(efficacy_drugs[sapply(efficacy_drugs, is.numeric)], y = NULL, use = "everything",
-    method = "spearman")
-
-corr
 
 
 ```
