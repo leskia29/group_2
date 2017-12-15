@@ -13,11 +13,15 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ###Rationale and Idea Development for Independent Variable Analyses 
 This project investigates the independent variables from *Mycobacterium tuberculosis* (TB) drug studies, which use mouse species as animal models. The independent variables include variables that were measured both in-vivo and in-vitro. This group chose three different visual analysis methods to look at these independent variables including beeswarm plots, correlation plots, and hierarchical clustering plots. 
 
-For each type of plot the goal was to help the researchers understand the connections between the different independent variables based on their data. As a group, we explored three different packages that would assist the researchers in understanding the independent data, these include ggbeeswarm for the beeswarm plots, ggcorplot and ggpolypath for the correlation plots, and ggdend for the dendrograms that represent hierarchical clustering.
+For each type of plot the goal was to help the researchers understand the connections between the different independent variables based on their data. As a group, we explored three different packages that would assist the researchers in understanding the independent data, these include ggbeeswarm for the beeswarm plots, corrplot  for the correlation plots, and ggdend for the dendrograms that represent hierarchical clustering. Another critical function, ggpolypath, was critical for creating visualizations of the biodistribution of each drug within the mice.
 
 Beeswarm plots were made using the R package called ggbeeswarm (Clarke & Sherrill-Mix, 2017). A beeswarm plot, also commonly known as a “violin plot”, allows multiple groups of one dimensional data to be plotted in a way that is more representative of the underlying “distribution” of the data, it also helps prevent overlapping of data points that you see in other types of plots. In this case, it helps to show a pattern of distribution of TB drugs, according to the dosage-interval of the drug given and according to the resulting quantities of drug found in different measurements of mouse/human factors.   
 
-Hierarchical clustering plots were made using the ggdendro package in R. (Vries & Ripley, 2016). There are many different variations of hierarchical clustering of independent data. Some of the ways we investigated displaying the clusters included different geom_edge layouts from the ggraph package (Pederson, 2017). Some of the layouts that were considered were elbow, diagonal, and 2-variant. We determined that the elbow geom_edge was the best layout, and those graphs inspired us to look into dendrograms which was the final clustering plot we chose.  Dendrograms provide a visual using the nodes to identify which variables (either by drug and dose or by measurement) are the most similar by placing them on the same nodes. 
+Correlation plots were created under the corrplot package (Wei & Simko, 2017).  The correlation plots highlighted which in-vivo and in-vitro measures for TB drugs were correlated to each other for all drugs within the dataset. This information is essential to the TB drug study, as it may highlight which assays are highly correlated, potentially reducing the overall number of assays which must be performed.  
+
+Hierarchical clustering plots were made using the ggdendro package in R (Vries & Ripley, 2016). There are many different variations of hierarchical clustering of independent data. Some of the ways we investigated displaying the clusters included different geom_edge layouts from the ggraph package (Pederson, 2017). Some of the layouts that were considered were elbow, diagonal, and 2-variant. We determined that the elbow geom_edge was the best layout, and those graphs inspired us to look into dendrograms which was the final clustering plot we chose.  Dendrograms provide a visual using the nodes to identify which variables (either by drug and dose or by measurement) are the most similar by placing them on the same nodes. 
+
+The final function relied on ggplot2 and ggpolypath packages (Wickham, 2009; Sumner 2016).  Combining the in-vivo measures given by the TB study with a dataframe containing coordinates (x,y) for a mouse and lesion visual model, ggplot2 enabled the creation of small multiples for drugs depicting the concentration of drug in each tissue measured.  The ggpolypath function was necessary to create the various layers for each tissue region.  For example, the mouse model would have appeared solid without the "hole" created by ggpolypath allowing the lung and lesion models to be seen within the mouse body.  The result of both packages were summary visualizations of the biodistribution of drug for each drug in the dataset.
   
 **Add quick summaries about other plots here**   
   
@@ -196,9 +200,34 @@ invitro_beeswarm_function(efficacy_summary, variables = c("cLogP", "Caseum_bindi
 ```
 
 ###Correlation Plots  
-key function stuff  
+The correlation plots were simple compared to the other functions written for the shiny app.  This is mainly due to the fact that correlation plots usually explore all correlations within the dataset, as is the case here.  All in-vivo and in-vitro data were crossed in order to give correlation scores for all markers across all drug groups.  The function `correlation_function` depended only on reading in the correct data file, as prepared by shiny app team, and removing non-numerical measures.  After applying a correlation function `cor`, which was limited only to complete observations (`complete.obs`) due to the significant proportion of `NA` data, the correlation values were plotted using `corrplot`.  Type `upper` and order `AOE` were selected in order to most clearly view the correlations without mirroring the information and with strong positive and negative correlations grouped within the display. 
+
+While this function yeilds a plot which may look data-heavy, filtering out low correlations to increase the value of the displayed data was not allowed.  The researchers expressed a desire to see all correlations, so that they could select which assays to continue performing based on either low or high correlation.  Therefore, the full correlation plot was the only one given.
+
+```{r corrplot, fig.width= 12, fig.height= 12}
+
+library(dplyr)
+library(readr)
+library(readxl)
+library(corrplot)
+
+#Give address for raw data
+efficacy_drugs <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/efficacy_summary.csv"))
+
+correlation_function <- function(efficacy_drugs) {
+efficacy_drugs_corr <- read_csv(efficacy_drugs)
+efficacy_drugs_corr <- efficacy_drugs_corr %>% 
+  select(dosage:MacUptake, -dose_int, -level) 
+
+corrplot_drugs <- cor(efficacy_drugs_corr, use = "complete.obs") %>% 
+  corrplot(type = "upper", order = "AOE") 
 
 
+return(corrplot_drugs)
+}
+
+correlation_function(efficacy_drugs)
+```
 
 ###Hierarchial Clustering Function
 We named the dendrogram function we created `dendro_cluster` so that users would be able to easily remember what the function does which is create dendrograms based on clustering methods. The function is created to quickly create dendrograms using the independent variables to understand which variables are similar and clustered together. This function has two different categories or levels that the dendrogram can evaluate `by_test` which will display a cluster dendrogram that shows the similarities among the test or measurements within the tuberculosis data. We further designed the function to show `invitro` variables as red text, and `invivo` variables as blue text. This could help the researchers understand which test types are more effective and could be helpful in determining which tests are more cost-effective.  The function also allows the user to evaluate clustering patterns among by drug type with the code `by_test`. The output of the `dendro_cluster` function is either a plot with clustering by drug or by test whichever the user selects. 
@@ -305,9 +334,75 @@ dendro_cluster(df = input_data, category = "by_test")
 dendro_cluster(df = input_data, category = "by_drug")
 ```
 
+###Biodistribution modelling function
+The biodistribution modelling for both mouse and lesion were combined into one display of small multiples, arranged by drug and dose.  The function was named `efficacy_summary_modelling_function` to clearly illustrate the data source as being summary data. The models for mouse and lesion were created within Excel.  The mouse model was drawn point-by-point using a live excel scatterplot with a representative mouse in the background.  The lesion was based on the formula for a circle, with a x,y point for each degree and iterated for 4 concentric circles representing the three regions of the lesion.  The fibrous outer edge of the rim of the lesion was modelled by varying the radius for that particular circle.  All tissue regions, representing plasma, standard lung, standard lesion, uninvolved lung, lesion rim, lesion outer caseum, and lesion inner caseum, were graphed for the model and filled according to reported maximum concentration as given by the `efficacy_summary` file.  
+
+The function inputs were two dataframes, one set within the function (`ModelCoord.xlsx`) and the other called by the function (`efficacy_summary`). The `efficacy_summary` file was called by default, though another file with the same column names could be named within the function call (`efficacy_summary_modelling_function(efficacy_summary = df_address)`).  Missing data in any dataframe will simply show as a grey color within the mapping, as the concentrations are unavailable to use as fill values.  
+
+Two challenging elements were addressed within this function.  The first was the joining of the model coordinates, some 3,000 points, to the fill concentrations for each region by drug.  The end product simply joined the two dataframes by `ELEMENT`, or tissue label.  This created a `tibble` of dimension (5 plus the number of drugs by unique dosage) x 3,000 columns and rows.  This solution is noted within the join function, where the dataframes were merged.  The second challenge for the function was the creation of holes within the layers of each plot region.  The `ggpolypath` package addresses this issue, but required duplication of the coordinates for the model.  Essentially, using `geom_polypath` each point was plotted twice: once as the outline for the element, and once as the hole in the surrounding element (next layer out).  For the mouse body, lungs, and lesion, this meant that the mouse body was drawn as an object with a lung-shaped hole, and then the lungs were drawn in the lung-shaped hole, with a lesion-shaped hole for the lesion to fill.  Additional geoms were added to the `ggplot2` object, `mouse_plot`, in order to outline each region in black and to add lines for the lesion inset.  
+
+Additional functions from `tidyr` were also employed in the function to `select` the drug data and `gather` it into the proper format (long data instead of wide) prior to merging with the model coordinates. See the chunk notations for further details.
+
+The overall impact of this function was a visual representation of biodistribution for each drug and dosage level.  Trough and Cmax versions were both made available in the shiny app.  This function did not address sample size or variations with maximum concentration for each drug, but could be added in the future by incorporation of summary statistics within plotly.  
+
+```{r mouse, fig.width = 8}
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(ggthemes)
+library(tidyr)
+library(readxl)
+library(ggpolypath)
+library(viridis)
+
+#Give the location for the source data file
+efficacy_summary_modelling <- (paste0("https://raw.githubusercontent.com/KatieKey/input_output_shiny_group/", "master/CSV_Files/efficacy_summary.csv"))
+
+#Set up the beginning of the function, where in-vivo concentrations are read in from excel
+efficacy_summary_modelling_function <- function(efficacy_summary_modelling) {
+
+efficacy_summary_modelling <- read_csv(efficacy_summary_modelling) 
+
+#Select the in-vivo elements of the efficacy summary, create a new column for drug and dosage together, filter for the maximum concetrations, and gather the in-vivo elements to prepare the dataframe for merging
+example_data <- efficacy_summary_modelling %>% 
+  select(drug, dosage, level, PLA, SLU, SLE, ULU, RIM, OCS, ICS) %>% 
+  unite(drug_dosing, drug, dosage, sep = "-") %>% 
+  filter(level == "Cmax") %>% 
+  gather(PLA:ICS, key = "ELEMENT", value = concentration) %>% 
+  mutate(ELEMENT = as.character(ELEMENT))
+
+#Join the mouse/lesion coordinate dataframe to the efficacy summary modelling dataframe
+mouse <- read_excel('../sample_data/ModelCoord.xlsx') %>% 
+  left_join(example_data, by = "ELEMENT")
+
+#Plot drug distribution, facetted by drug_dosing
+mouse_plot <- mouse %>% 
+  ggplot(aes(mapping = TRUE, x = X, y = Y, group = HOLE, fill = concentration)) +
+  geom_polypath(rule = "evenodd") +
+  geom_path(colour = "black", size = .25) +
+  geom_segment(x=-6, y=-2, xend=-28, yend=12) + #create inset lines for lesion zoom
+  geom_segment(x=-6, y=-4, xend=-28, yend=-12) +
+  theme_void() +
+  theme(legend.position = 'right') +
+  labs(title = "Biodistribution by drug and dosage", 
+       subtitle = "For plasma (mouse), standard lung (lungs), standard lesion (small lesion), uninvolved lung \n(box inset), lesion rim (inset), outer caseum (inset) and inner caseum (inset) concentrations", 
+       caption = paste("prepared ", Sys.Date() )) + 
+  coord_fixed()  + #keep models from skew when scaled
+  scale_fill_viridis(option = "magma") + 
+  facet_wrap(~ drug_dosing, ncol=4)
+
+return((mouse_plot))
+}
+
+efficacy_summary_modelling_function(efficacy_summary_modelling)
+```
+
 ###Problems We Faced
 
 ####Mouse small plots probs/Correlation Plots
+The main problem within the correlation plots was formatting for the best visual communication of data.  The correlation plots could be expanded by incorporation of unique correlation plots by drug, again in small multiple format.  As most of the data available was in summary format, there was not enough unique information by drug to create correlation matrices by drug.  In future, a cleaner full dataset with all variables by drug iteration, i.e. mouse, would make this possible.  Additionally, the strength of correlations as displayed were undermined by the high prevalence of missing values, or `NA`s.  
+
+The modelling by small multiples of biodistribution was difficult mainly because it relied on two unrelated dataframes - one with data results and the other with the visual modelling coordinates.  A third dataframe would likely be required to incorporate summary statistics for each concentration region by `plotly`.  Calling these various datasets uniquely within a function is not easily feasible within R, hence the merge to a massive dataframe for the `efficacy_summary` and `ModelCoord` dataframes.  In future, nesting functions might address the problem.  An alternate solution specifically for the current model would be to create a geom for the mouse/lesion model itself, with the input parameter being fill only, perhaps by region.  Learning how to create custom geoms for this type of application is a newly developing functionality of R.  Though possible, it lay outside the scope of this project.  
 
 ####Beeswarm
 For the beeswarm plots and function, there were some problems that we faced that are important to note. It was not possible to use the data, as it was upon importing, to create small multiples. The `gather()` step in the function is an important step in particular, which modifies the data frame to a format that allows for the creation of small multiples. 
@@ -334,7 +429,7 @@ Some of the next steps in general, which touch upon all of our specific analyses
 A future consideration for the beeswarm functions, in particular, would be including code that would plot blank small multiples for missing columns in a data set. Also, it would be helpful to code a fix in the radio buttons for potential drug-name variation.  
 
 ###References 
-Andrie de Vries and Brian D. Ripley (2016). ggdendro: Create Dendrograms      and Tree
+Andrie de Vries and Brian D. Ripley (2016). ggdendro: Create Dendrograms and Tree
   	Diagrams Using 'ggplot2'. R package version 0.1-20.
   	https://CRAN.R-project.org/package=ggdendro   
 
@@ -342,9 +437,18 @@ Erik Clarke and Scott Sherrill-Mix (2017). ggbeeswarm: Categorical
   	Scatter (Violin Point) Plots. R package version 0.6.0.
   	https://CRAN.R-project.org/package=ggbeeswarm   
   	
-Stack Overflow - Where Developers Learn, Share, & Build Careers. (2017).      Stackoverflow.com. Retrieved 14 December 2017, from
-    https://stackoverflow.com/ 
+Hadley Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York,
+    2009.
 
-Thomas Lin Pedersen (2017). ggraph: An Implementation of Grammar of           Graphics for Graphs
+Michael D. Sumner (2016). ggpolypath: Polygons with Holes for the Grammar of Graphics.
+    R package version 0.1.0. https://CRAN.R-project.org/package=ggpolypath
+  
+Stack Overflow - Where Developers Learn, Share, & Build Careers. (2017).          
+    Stackoverflow.com. Retrieved 14 December 2017, from https://stackoverflow.com/ 
+
+Taiyun Wei and Viliam Simko (2017). R package "corrplot": Visualization of a
+    Correlation Matrix (Version 0.84). Available from https://github.com/taiyun/corrplot
+  
+Thomas Lin Pedersen (2017). ggraph: An Implementation of Grammar of Graphics for Graphs
     and Networks. R package version 1.0.0.
     https://CRAN.R-project.org/package=ggraph 
