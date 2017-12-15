@@ -208,7 +208,6 @@ While this function yeilds a plot which may look data-heavy, filtering out low c
 
 library(dplyr)
 library(readr)
-library(readxl)
 library(corrplot)
 
 #Give address for raw data
@@ -220,7 +219,8 @@ efficacy_drugs_corr <- efficacy_drugs_corr %>%
   select(dosage:MacUptake, -dose_int, -level) 
 
 corrplot_drugs <- cor(efficacy_drugs_corr, use = "complete.obs") %>% 
-  corrplot(type = "upper", order = "AOE") 
+  corrplot(type = "upper", order = "AOE", title = "Correlation scores for all variables across all drugs")
+  
 
 
 return(corrplot_drugs)
@@ -345,7 +345,7 @@ Additional functions from `tidyr` were also employed in the function to `select`
 
 The overall impact of this function was a visual representation of biodistribution for each drug and dosage level.  Trough and Cmax versions were both made available in the shiny app.  This function did not address sample size or variations with maximum concentration for each drug, but could be added in the future by incorporation of summary statistics within plotly.  
 
-```{r mouse, fig.width = 8}
+```{r mouse, fig.width = 14}
 library(dplyr)
 library(readr)
 library(ggplot2)
